@@ -4231,6 +4231,30 @@ body {
   letter-spacing: 0;
 }
 
+.section-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.section-title-row h2 {
+  margin: 0;
+}
+
+.section-title-row .room-leave-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 96px;
+  height: 34px;
+  margin: 0;
+  padding: 0 16px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
 .room-leave-button {
   display: block;
   min-width: 112px;

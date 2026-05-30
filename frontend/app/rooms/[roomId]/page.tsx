@@ -144,7 +144,19 @@ export default function RoomDetailPage() {
       </section>
 
       <section className="detail-panel members-panel">
-        <h2>멤버</h2>
+        <div className="section-title-row">
+          <h2>멤버</h2>
+          {canLeaveRoom ? (
+            <button className="room-leave-button" disabled={isLeaving} type="button" onClick={handleLeaveRoom}>
+              {isLeaving ? "나가는 중" : "방 나가기"}
+            </button>
+          ) : null}
+          {isHostRoom ? (
+            <button className="room-leave-button" disabled={isLeaving} type="button" onClick={handleDeleteRoom}>
+              {isLeaving ? "삭제 중" : "방 삭제하기"}
+            </button>
+          ) : null}
+        </div>
         <div className="detail-list-stack member-list-stack">
           {isLoading ? <MemberCard name="불러오는 중" /> : null}
           {token && !isLoading && members.length === 0 ? <MemberCard name="멤버가 없어요" /> : null}
@@ -153,16 +165,6 @@ export default function RoomDetailPage() {
           ))}
         </div>
         {leaveError ? <p className="room-leave-error">{leaveError}</p> : null}
-        {canLeaveRoom ? (
-          <button className="room-leave-button" disabled={isLeaving} type="button" onClick={handleLeaveRoom}>
-            {isLeaving ? "나가는 중" : "방 나가기"}
-          </button>
-        ) : null}
-        {isHostRoom ? (
-          <button className="room-leave-button" disabled={isLeaving} type="button" onClick={handleDeleteRoom}>
-            {isLeaving ? "삭제 중" : "방 삭제하기"}
-          </button>
-        ) : null}
       </section>
     </main>
   );
