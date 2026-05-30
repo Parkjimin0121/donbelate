@@ -57,7 +57,9 @@ export default function MyPage() {
       </header>
 
       <section className="profile-summary-card">
-        <span className="mypage-avatar" aria-hidden="true" />
+        <span className="mypage-avatar" aria-hidden="true">
+          {getUserInitial(user?.name)}
+        </span>
         <div className="profile-main">
           <span className="profile-badge">성실 납부자</span>
           <strong>{user?.name ?? "사용자"}</strong>
@@ -139,4 +141,8 @@ function transactionLabel(type: string) {
     default:
       return "포인트 내역";
   }
+}
+
+function getUserInitial(name?: string) {
+  return name?.trim().slice(0, 1) || "나";
 }
