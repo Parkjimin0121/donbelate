@@ -4109,6 +4109,19 @@ body {
   color: var(--app-blue);
 }
 
+/* Room promise card alignment */
+.promise-card {
+  justify-content: flex-start;
+}
+
+.promise-card > .promise-copy {
+  flex: 1;
+}
+
+.promise-card > .promise-status {
+  margin-left: auto;
+}
+
 .logout-button {
   background: var(--app-red-soft);
   color: var(--app-red);
