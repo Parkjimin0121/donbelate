@@ -72,6 +72,7 @@ export async function handleUserRoutes({ req, res, db, url, segments }) {
       .filter(
         (meeting) =>
           myRoomIds.includes(meeting.roomId) &&
+          isVisibleMeetingForUser(meeting, session.userId) &&
           (meeting.status === "bidding" || new Date(meeting.scheduledAt).getTime() >= now)
       )
       .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())
@@ -107,4 +108,9 @@ export async function handleUserRoutes({ req, res, db, url, segments }) {
   }
 
   return false;
+}
+
+function isVisibleMeetingForUser(meeting, userId) {
+  if (!Array.isArray(meeting.participantUserIds) || meeting.participantUserIds.length === 0) return true;
+  return meeting.participantUserIds.includes(userId);
 }

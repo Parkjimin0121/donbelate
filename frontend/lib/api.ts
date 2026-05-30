@@ -40,6 +40,8 @@ export type Meeting = {
   locationName: string;
   latitude: number;
   longitude: number;
+  capacity?: number | null;
+  participantUserIds?: string[];
   finalLateFeePerMinute?: number | null;
   bidResult?: {
     finalLateFeePerMinute: number;
@@ -318,6 +320,7 @@ export function createMeeting(
     latitude: number;
     longitude: number;
     capacity?: number | null;
+    participantUserIds?: string[];
   },
   token: string | null
 ) {

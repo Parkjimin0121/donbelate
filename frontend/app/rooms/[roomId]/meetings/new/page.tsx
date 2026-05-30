@@ -160,7 +160,8 @@ export default function NewMeetingPage() {
           locationName: `${selectedLocation.name} ${selectedLocation.branch}`,
           latitude: selectedLocation.latitude,
           longitude: selectedLocation.longitude,
-          capacity: selectedMemberIds.length
+          capacity: selectedMemberIds.length,
+          participantUserIds: selectedMemberIds
         },
         token
       );

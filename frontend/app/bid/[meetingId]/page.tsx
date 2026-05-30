@@ -54,11 +54,17 @@ export default function BidDetailPage() {
 
   const title = meeting ? `${meeting.room?.name ?? "방"} - ${meeting.title}` : "입찰";
   const members = membersQuery.data ?? [];
+  const meetingMembers =
+    meeting?.participantUserIds && meeting.participantUserIds.length > 0
+      ? members.filter((member) => meeting.participantUserIds?.includes(member.userId))
+      : meeting?.capacity === 1 && user
+        ? members.filter((member) => member.userId === user.id)
+      : members;
   const bids = bidsQuery.data ?? [];
   const didBid = bids.some((bid) => bid.userId === user?.id);
   const displayMembers =
-    members.length > 0
-      ? members
+    meetingMembers.length > 0
+      ? meetingMembers
       : user && didBid
         ? [
             {

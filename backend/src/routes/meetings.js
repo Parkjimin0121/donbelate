@@ -22,6 +22,7 @@ export async function handleMeetingRoutes({ req, res, db, url, segments }) {
       latitude: Number(body.latitude),
       longitude: Number(body.longitude),
       capacity: body.capacity ?? null,
+      participantUserIds: normalizeParticipantUserIds(db, body.roomId, body.participantUserIds),
       bidDeadline: body.bidDeadline ?? null,
       finalLateFeePerMinute: null,
       bidResult: null,
@@ -118,10 +119,13 @@ export async function handleMeetingRoutes({ req, res, db, url, segments }) {
 }
 
 async function createBid({ req, res, db, meetingId }) {
-  findMeeting(db, meetingId);
+  const meeting = findMeeting(db, meetingId);
 
   const body = await readJson(req);
   requireFields(body, ["userId", "amountPerMinute"]);
+  if (!isMeetingParticipant(meeting, body.userId)) {
+    throw httpError(403, "Only meeting participants can bid.");
+  }
 
   const amountPerMinute = Number(body.amountPerMinute);
   if (!Number.isFinite(amountPerMinute) || amountPerMinute <= 0) {
@@ -161,6 +165,9 @@ async function createCheckin({ req, res, db, meetingId }) {
   const meeting = findMeeting(db, meetingId);
   const body = await readJson(req);
   requireFields(body, ["userId", "latitude", "longitude"]);
+  if (!isMeetingParticipant(meeting, body.userId)) {
+    throw httpError(403, "Only meeting participants can check in.");
+  }
 
   const userLocation = {
     latitude: Number(body.latitude),
@@ -201,7 +208,7 @@ async function createCheckin({ req, res, db, meetingId }) {
 
 function sendArrivalStatus({ res, db, meetingId }) {
   const meeting = findMeeting(db, meetingId);
-  const members = db.roomMembers.filter((member) => member.roomId === meeting.roomId);
+  const members = getMeetingRoomMembers(db, meeting);
   const status = members.map((member) => {
     const checkin = db.checkins.find(
       (item) => item.meetingId === meetingId && item.userId === member.userId
@@ -221,11 +228,7 @@ function sendArrivalStatus({ res, db, meetingId }) {
 
 function sendLiveLocations({ res, db, meetingId }) {
   const meeting = findMeeting(db, meetingId);
-  const memberIds = new Set(
-    db.roomMembers
-      .filter((member) => member.roomId === meeting.roomId)
-      .map((member) => member.userId)
-  );
+  const memberIds = new Set(getMeetingRoomMembers(db, meeting).map((member) => member.userId));
   const latestByUserId = new Map();
 
   for (const location of db.liveLocations.filter((item) => item.meetingId === meetingId)) {
@@ -247,9 +250,12 @@ function sendLiveLocations({ res, db, meetingId }) {
 }
 
 async function upsertLiveLocation({ req, res, db, meetingId }) {
-  findMeeting(db, meetingId);
+  const meeting = findMeeting(db, meetingId);
   const body = await readJson(req);
   requireFields(body, ["userId", "latitude", "longitude"]);
+  if (!isMeetingParticipant(meeting, body.userId)) {
+    throw httpError(403, "Only meeting participants can share location.");
+  }
 
   db.liveLocations = db.liveLocations.filter(
     (location) => !(location.meetingId === meetingId && location.userId === body.userId)
@@ -285,9 +291,12 @@ function sendHorseBets({ res, db, meetingId }) {
 }
 
 async function createHorseBet({ req, res, db, meetingId }) {
-  findMeeting(db, meetingId);
+  const meeting = findMeeting(db, meetingId);
   const body = await readJson(req);
   requireFields(body, ["bettorUserId", "targetUserId", "predictedArrivedAt", "amount"]);
+  if (!isMeetingParticipant(meeting, body.bettorUserId) || !isMeetingParticipant(meeting, body.targetUserId)) {
+    throw httpError(403, "Only meeting participants can bet.");
+  }
 
   const amount = Number(body.amount);
   if (!Number.isFinite(amount) || amount <= 0) {
@@ -323,9 +332,12 @@ function sendMeetingComments({ res, db, meetingId }) {
 }
 
 async function createMeetingComment({ req, res, db, meetingId }) {
-  findMeeting(db, meetingId);
+  const meeting = findMeeting(db, meetingId);
   const body = await readJson(req);
   requireFields(body, ["userId", "content"]);
+  if (!isMeetingParticipant(meeting, body.userId)) {
+    throw httpError(403, "Only meeting participants can comment.");
+  }
 
   const content = String(body.content).trim();
   if (!content) throw httpError(400, "content must not be empty.");
@@ -350,4 +362,31 @@ function findMeeting(db, meetingId) {
   const meeting = db.meetings.find((item) => item.id === meetingId);
   if (!meeting) throw httpError(404, "Meeting not found.");
   return meeting;
+}
+
+function normalizeParticipantUserIds(db, roomId, participantUserIds) {
+  const roomMemberIds = new Set(
+    db.roomMembers.filter((member) => member.roomId === roomId).map((member) => member.userId)
+  );
+
+  if (!Array.isArray(participantUserIds)) return [...roomMemberIds];
+
+  const selectedIds = participantUserIds
+    .map((userId) => String(userId))
+    .filter((userId, index, ids) => roomMemberIds.has(userId) && ids.indexOf(userId) === index);
+
+  return selectedIds.length > 0 ? selectedIds : [...roomMemberIds];
+}
+
+function getMeetingRoomMembers(db, meeting) {
+  const members = db.roomMembers.filter((member) => member.roomId === meeting.roomId);
+  if (!Array.isArray(meeting.participantUserIds) || meeting.participantUserIds.length === 0) return members;
+
+  const participantIds = new Set(meeting.participantUserIds);
+  return members.filter((member) => participantIds.has(member.userId));
+}
+
+function isMeetingParticipant(meeting, userId) {
+  if (!Array.isArray(meeting.participantUserIds) || meeting.participantUserIds.length === 0) return true;
+  return meeting.participantUserIds.includes(userId);
 }

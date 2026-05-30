@@ -7,7 +7,11 @@ export function settleMeeting(db, meeting) {
     throw httpError(409, "Late fee has not been finalized.");
   }
 
-  const participants = db.roomMembers.filter((member) => member.roomId === meeting.roomId);
+  const roomMembers = db.roomMembers.filter((member) => member.roomId === meeting.roomId);
+  const participants =
+    Array.isArray(meeting.participantUserIds) && meeting.participantUserIds.length > 0
+      ? roomMembers.filter((member) => meeting.participantUserIds.includes(member.userId))
+      : roomMembers;
   const checkins = db.checkins.filter((checkin) => checkin.meetingId === meeting.id);
   const checkinByUser = new Map(checkins.map((checkin) => [checkin.userId, checkin]));
 
