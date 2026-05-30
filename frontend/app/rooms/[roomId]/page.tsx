@@ -140,7 +140,7 @@ function PromiseCard({
           {content}
         </Link>
       ) : (
-        content
+        <div className="promise-card-link">{content}</div>
       )}
     </article>
   );
