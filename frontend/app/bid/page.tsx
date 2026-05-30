@@ -53,10 +53,18 @@ function BidMeetingCard({ meeting, userId }: { meeting: Meeting; userId: string 
   const didBid = bidsQuery.data?.some((bid) => bid.userId === userId) ?? false;
 
   return (
-    <Link className="bid-meeting-card" href={`/bid/${meeting.id}`}>
-      <strong>{meeting.title}</strong>
-      <span className="bid-deadline">{formatBidDeadline(meeting.scheduledAt)}</span>
-      <span className={didBid ? "bid-status-icon bid-status-check" : "bid-status-icon bid-status-x"} aria-hidden="true" />
+    <Link className={didBid ? "bid-meeting-card bid-meeting-card-done" : "bid-meeting-card"} href={`/bid/${meeting.id}`}>
+      <div className="bid-meeting-copy">
+        <strong>{meeting.title}</strong>
+        <span className="bid-meeting-place">{meeting.locationName}</span>
+        <span className="bid-meeting-time">{formatMeetingDateTime(meeting.scheduledAt)}</span>
+      </div>
+      <div className="bid-meeting-side">
+        <span className={didBid ? "bid-state-pill bid-state-done" : "bid-state-pill bid-state-pending"}>
+          {didBid ? "입찰완료" : "미입찰"}
+        </span>
+        <span className="bid-deadline">{formatBidDeadline(meeting.scheduledAt)}</span>
+      </div>
     </Link>
   );
 }
@@ -76,5 +84,20 @@ function formatBidDeadline(value: string) {
   const minutesLeft = Math.max(0, Math.ceil((scheduledAt - Date.now()) / 60000));
   if (minutesLeft <= 5) return `마감 ${minutesLeft}분 전`;
   if (minutesLeft < 60) return `마감 ${minutesLeft}분 전`;
-  return `마감 ${Math.ceil(minutesLeft / 60)}시간 전`;
+  if (minutesLeft < 1440) return `마감 ${Math.ceil(minutesLeft / 60)}시간 전`;
+  return `마감 D-${Math.ceil(minutesLeft / 1440)}`;
+}
+
+function formatMeetingDateTime(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "약속 시간 미정";
+
+  return new Intl.DateTimeFormat("ko-KR", {
+    month: "long",
+    day: "numeric",
+    weekday: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  }).format(date);
 }

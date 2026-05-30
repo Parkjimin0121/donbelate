@@ -4013,6 +4013,102 @@ body {
   background: var(--app-blue-pressed);
 }
 
+/* Bid waiting list polish */
+.bid-waiting-panel {
+  padding: 30px 26px 34px;
+  border-radius: 24px;
+}
+
+.bid-meeting-list {
+  gap: 14px;
+}
+
+.bid-meeting-card {
+  grid-template-columns: 4px minmax(0, 1fr) auto;
+  min-height: 112px;
+  gap: 18px;
+  padding: 18px 22px;
+  align-items: center;
+}
+
+.bid-meeting-card::before {
+  grid-column: 1;
+  width: 4px;
+  min-height: 62px;
+  align-self: center;
+}
+
+.bid-meeting-copy {
+  display: grid;
+  grid-column: 2;
+  min-width: 0;
+  gap: 5px;
+}
+
+.bid-meeting-copy strong {
+  overflow: hidden;
+  color: var(--app-ink);
+  font-size: 22px;
+  font-weight: 850;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bid-meeting-place,
+.bid-meeting-time {
+  overflow: hidden;
+  color: var(--app-muted);
+  font-size: 15px;
+  font-weight: 750;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bid-meeting-side {
+  display: grid;
+  grid-column: 3;
+  min-width: 88px;
+  justify-items: end;
+  gap: 9px;
+  text-align: right;
+}
+
+.bid-state-pill,
+.bid-deadline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.bid-state-pill {
+  min-height: 30px;
+  padding: 0 12px;
+}
+
+.bid-state-done {
+  background: var(--app-green-soft);
+  color: var(--app-green);
+}
+
+.bid-state-pending {
+  background: var(--app-red-soft);
+  color: var(--app-red);
+}
+
+.bid-deadline {
+  min-height: 28px;
+  padding: 0 10px;
+  background: var(--app-blue-soft);
+  color: var(--app-blue);
+}
+
 .logout-button {
   background: var(--app-red-soft);
   color: var(--app-red);
