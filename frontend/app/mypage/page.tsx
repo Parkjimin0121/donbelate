@@ -62,39 +62,47 @@ export default function MyPage() {
           <span className="profile-badge">성실 납부자</span>
           <strong>{user?.name ?? "사용자"}</strong>
         </div>
-        <button className="profile-edit-button" type="button">
-          프로필 편집
-        </button>
-        <button className="logout-button" type="button" onClick={handleLogout}>
-          로그아웃
-        </button>
-      </section>
-
-      <section className="point-summary-card">
-        <h2>내 포인트</h2>
-        <strong>{balance} P</strong>
-      </section>
-
-      <section className="mypage-panel point-history-panel">
-        <h2>포인트 사용내역</h2>
-        <div className="point-history-list">
-          {transactions.map((transaction) => (
-            <article key={transaction.id} className="point-history-row">
-              <span>{transactionLabel(transaction.type)}</span>
-              <strong>{transaction.amount > 0 ? `+${transaction.amount}` : transaction.amount}</strong>
-            </article>
-          ))}
+        <div className="profile-actions">
+          <button className="profile-edit-button" type="button">
+            프로필 편집
+          </button>
+          <button className="logout-button" type="button" onClick={handleLogout}>
+            로그아웃
+          </button>
         </div>
       </section>
 
-      <section className="mypage-panel review-panel">
+      <section className="mypage-section">
+        <h2>내 포인트</h2>
+        <div className="point-summary-card">
+          <strong>{balance} P</strong>
+        </div>
+      </section>
+
+      <section className="mypage-section">
+        <h2>포인트 사용내역</h2>
+        <div className="mypage-panel point-history-panel">
+          <div className="point-history-list">
+            {transactions.map((transaction) => (
+              <article key={transaction.id} className="point-history-row">
+                <span>{transactionLabel(transaction.type)}</span>
+                <strong>{transaction.amount > 0 ? `+${transaction.amount}` : transaction.amount}</strong>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="mypage-section">
         <h2>나의 리뷰</h2>
-        <div className="review-list">
-          {FALLBACK_REVIEWS.map((review) => (
-            <article key={review} className="review-card">
-              {review}
-            </article>
-          ))}
+        <div className="mypage-panel review-panel">
+          <div className="review-list">
+            {FALLBACK_REVIEWS.map((review) => (
+              <article key={review} className="review-card">
+                {review}
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
