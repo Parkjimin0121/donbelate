@@ -4004,6 +4004,15 @@ body {
   background: rgba(255, 255, 255, 0.72);
 }
 
+.bid-secondary-button:not(.bid-secondary-disabled) {
+  background: var(--app-blue);
+  color: #ffffff;
+}
+
+.bid-secondary-button:not(.bid-secondary-disabled):hover {
+  background: var(--app-blue-pressed);
+}
+
 .logout-button {
   background: var(--app-red-soft);
   color: var(--app-red);
