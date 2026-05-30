@@ -8,6 +8,8 @@ import { useAuthStore } from "@/stores/auth-store";
 
 const BASE_SPINS = 6;
 const SEGMENT_DEGREES = 90;
+const POINTER_OFFSET_DEGREES = 0;
+const SPIN_DURATION_MS = 3000;
 
 export default function RoulettePage() {
   const router = useRouter();
@@ -42,21 +44,17 @@ export default function RoulettePage() {
         ? meeting
         : await finalizeMeetingBid(meetingId, token);
 
-      const finalizedFee =
-        finalizedMeeting.finalLateFeePerMinute ??
-        finalizedMeeting.bidResult?.finalLateFeePerMinute ??
-        labels[0];
       const nextLabels = buildWheelLabels(finalizedMeeting);
-      const winnerIndex = Math.max(0, nextLabels.findIndex((label) => label === finalizedFee));
-      const targetRotation = BASE_SPINS * 360 + winnerIndex * SEGMENT_DEGREES + 15;
+      const selectedIndex = getSelectedSegmentIndex(finalizedMeeting, nextLabels);
+      const targetRotation = getTargetRotation(rotation, selectedIndex);
 
       setResultMeeting(finalizedMeeting);
-      setRotation((current) => current + targetRotation);
+      setRotation(targetRotation);
 
       window.setTimeout(() => {
         setIsSpinning(false);
         setHasSpun(true);
-      }, 3000);
+      }, SPIN_DURATION_MS);
     } catch (finalizeError) {
       setIsSpinning(false);
       setError(finalizeError instanceof Error ? finalizeError.message : "룰렛을 돌리지 못했어요.");
@@ -123,4 +121,24 @@ function buildWheelLabels(meeting?: Meeting | null) {
   if (values && values.length >= 4) return values.slice(0, 4);
   if (values && values.length > 0) return [...values, 100, 500, 1000].slice(0, 4);
   return [300, 100, 500, 1000];
+}
+
+function getSelectedSegmentIndex(meeting: Meeting, labels: number[]) {
+  const selectedQuartile = meeting.bidResult?.selectedQuartile;
+  if (typeof selectedQuartile === "number" && selectedQuartile >= 1 && selectedQuartile <= labels.length) {
+    return selectedQuartile - 1;
+  }
+
+  const finalFee = meeting.finalLateFeePerMinute ?? meeting.bidResult?.finalLateFeePerMinute;
+  const feeIndex = labels.findIndex((label) => label === finalFee);
+  return Math.max(0, feeIndex);
+}
+
+function getTargetRotation(currentRotation: number, selectedIndex: number) {
+  const normalizedCurrent = ((currentRotation % 360) + 360) % 360;
+  const selectedAngle = selectedIndex * SEGMENT_DEGREES;
+  const targetModulo = (360 - selectedAngle + POINTER_OFFSET_DEGREES) % 360;
+  const distanceToTarget = (targetModulo - normalizedCurrent + 360) % 360;
+
+  return currentRotation + BASE_SPINS * 360 + distanceToTarget;
 }
