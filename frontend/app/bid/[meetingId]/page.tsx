@@ -156,10 +156,12 @@ export default function BidDetailPage() {
 
 function BidMemberRow({ name, completed, bid }: { name: string; completed: boolean; bid?: Bid }) {
   return (
-    <article className="bid-member-row" title={bid ? `${bid.amountPerMinute}P` : undefined}>
+    <article
+      className={completed ? "bid-member-row bid-member-row-completed" : "bid-member-row bid-member-row-pending"}
+      title={bid ? `${bid.amountPerMinute}P` : "미입찰"}
+    >
       <span className="member-avatar" aria-hidden="true" />
       <strong>{name}</strong>
-      <span className={completed ? "bid-status-icon bid-status-check" : "bid-status-icon bid-status-x"} aria-hidden="true" />
     </article>
   );
 }

@@ -3910,6 +3910,100 @@ body {
   height: 32px;
 }
 
+/* Bid detail polish */
+.bid-action-panel {
+  padding: 26px 24px 28px;
+  border-radius: 24px;
+}
+
+.bid-amount-box {
+  grid-template-columns: auto minmax(86px, 1fr) auto;
+  min-height: 76px;
+  border: 1px solid var(--app-line);
+  border-radius: 18px;
+  background: var(--app-card);
+  box-shadow: inset 0 0 0 1px rgba(94, 124, 245, 0.04);
+}
+
+.bid-amount-box strong {
+  color: var(--app-blue);
+  font-size: 26px;
+  text-align: left;
+}
+
+.bid-amount-box input {
+  color: var(--app-ink);
+  font-size: 28px;
+  font-weight: 850;
+}
+
+.bid-amount-box span {
+  color: var(--app-muted);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.bid-members-panel {
+  border-radius: 24px;
+}
+
+.bid-member-row {
+  grid-template-columns: 4px 52px minmax(0, 1fr);
+  min-height: 78px;
+  gap: 16px;
+  padding: 14px 18px;
+  border: 1px solid transparent;
+  align-items: center;
+}
+
+.bid-member-row::before {
+  grid-column: 1;
+  width: 4px;
+  min-height: 48px;
+  align-self: center;
+}
+
+.bid-member-row .member-avatar {
+  grid-column: 2;
+  width: 52px;
+  height: 52px;
+}
+
+.bid-member-row strong {
+  grid-column: 3;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--app-ink);
+  font-size: 22px;
+  font-weight: 850;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bid-member-row-completed {
+  border-color: rgba(52, 199, 89, 0.26);
+  background: var(--app-green-soft);
+}
+
+.bid-member-row-completed::before {
+  background: var(--app-green);
+}
+
+.bid-member-row-pending {
+  border-color: rgba(239, 68, 68, 0.2);
+  background: var(--app-red-soft);
+}
+
+.bid-member-row-pending::before {
+  background: var(--app-red);
+}
+
+.bid-member-row-completed .member-avatar,
+.bid-member-row-pending .member-avatar {
+  background: rgba(255, 255, 255, 0.72);
+}
+
 .logout-button {
   background: var(--app-red-soft);
   color: var(--app-red);
