@@ -4161,15 +4161,19 @@ body {
 }
 
 .upcoming-room-name {
+  align-self: start;
+  justify-self: end;
   width: fit-content;
   max-width: 100%;
-  padding: 4px 9px;
+  margin-top: 2px;
+  padding: 8px 12px;
   border-radius: 999px;
   background: var(--app-blue-soft);
   color: var(--app-blue);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 850;
   line-height: 1;
+  white-space: nowrap;
 }
 
 .upcoming-meeting-copy strong {
@@ -4182,25 +4186,13 @@ body {
   white-space: nowrap;
 }
 
-.upcoming-meeting-copy span:not(.upcoming-room-name) {
+.upcoming-meeting-copy span {
   overflow: hidden;
   color: var(--app-muted);
   font-size: 14px;
   font-weight: 750;
   line-height: 1.25;
   text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.upcoming-status {
-  align-self: start;
-  margin-top: 2px;
-  padding: 8px 11px;
-  border-radius: 999px;
-  background: var(--app-blue-soft);
-  color: var(--app-blue);
-  font-size: 13px;
-  font-weight: 850;
   white-space: nowrap;
 }
 

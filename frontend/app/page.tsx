@@ -114,18 +114,16 @@ export default function HomePage() {
 
 function UpcomingMeetingCard({ meeting }: { meeting: Meeting }) {
   const roomName = meeting.room?.name ?? "방 정보 없음";
-  const status = meeting.status === "bidding" ? "입찰중" : isMeetingStarted(meeting.scheduledAt) ? "진행중" : "예정됨";
   const href = meeting.status === "bidding" ? `/bid/${meeting.id}` : isMeetingStarted(meeting.scheduledAt) ? `/meetings/${meeting.id}/live` : undefined;
 
   const content = (
     <>
       <div className="upcoming-meeting-copy">
-        <span className="upcoming-room-name">{roomName}</span>
         <strong>{meeting.title}</strong>
         <span>{meeting.locationName}</span>
         <span>{formatMeetingDateTime(meeting.scheduledAt)}</span>
       </div>
-      <span className="upcoming-status">{status}</span>
+      <span className="upcoming-room-name">{roomName}</span>
     </>
   );
 
