@@ -84,13 +84,14 @@ export default function RoomDetailPage() {
           {meetings.map((meeting) => {
             const inProgress = isMeetingInProgress(meeting, currentTime);
             const isBidding = meeting.status === "bidding";
+            const status = isBidding ? "입찰중" : inProgress ? "진행중" : "예정됨";
             return (
               <PromiseCard
                 key={meeting.id}
                 href={isBidding ? `/bid/${meeting.id}` : inProgress ? `/meetings/${meeting.id}/live` : undefined}
                 title={formatMeetingDateTime(meeting)}
                 subtitle={meeting.title}
-                status={isBidding ? "입찰중" : inProgress ? "진행중" : undefined}
+                status={status}
               />
             );
           })}
