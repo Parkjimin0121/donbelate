@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { deleteRoom, fetchMyRooms, fetchUpcomingMeetings } from "@/lib/api";
+import { deleteRoom, fetchMyRooms, fetchUpcomingMeetings, type Meeting } from "@/lib/api";
 import { useAuthStore } from "@/stores/auth-store";
 
 export default function HomePage() {
@@ -97,9 +97,7 @@ export default function HomePage() {
             <DarkCard label="예정된 약속이 없어요" />
           ) : null}
           {firstMeeting ? (
-            <DarkCard
-              label={`${firstMeeting.title} ${formatMeetingTime(firstMeeting.scheduledAt)}`}
-            />
+            <UpcomingMeetingCard meeting={firstMeeting} />
           ) : null}
         </div>
       </section>
@@ -111,6 +109,36 @@ export default function HomePage() {
         <NavItem icon="profile" label="마이페이지" href="/mypage" />
       </nav>
     </main>
+  );
+}
+
+function UpcomingMeetingCard({ meeting }: { meeting: Meeting }) {
+  const roomName = meeting.room?.name ?? "방 정보 없음";
+  const status = meeting.status === "bidding" ? "입찰중" : isMeetingStarted(meeting.scheduledAt) ? "진행중" : "예정됨";
+  const href = meeting.status === "bidding" ? `/bid/${meeting.id}` : isMeetingStarted(meeting.scheduledAt) ? `/meetings/${meeting.id}/live` : undefined;
+
+  const content = (
+    <>
+      <div className="upcoming-meeting-copy">
+        <span className="upcoming-room-name">{roomName}</span>
+        <strong>{meeting.title}</strong>
+        <span>{meeting.locationName}</span>
+        <span>{formatMeetingDateTime(meeting.scheduledAt)}</span>
+      </div>
+      <span className="upcoming-status">{status}</span>
+    </>
+  );
+
+  return (
+    <article className="upcoming-meeting-card">
+      {href ? (
+        <Link className="upcoming-meeting-link" href={href}>
+          {content}
+        </Link>
+      ) : (
+        <div className="upcoming-meeting-link">{content}</div>
+      )}
+    </article>
   );
 }
 
@@ -185,12 +213,20 @@ function NavItem({
   );
 }
 
-function formatMeetingTime(value: string) {
+function formatMeetingDateTime(value: string) {
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
+  if (Number.isNaN(date.getTime())) return "약속 시간 미정";
   return new Intl.DateTimeFormat("ko-KR", {
+    month: "long",
+    day: "numeric",
+    weekday: "short",
     hour: "2-digit",
     minute: "2-digit",
     hour12: false
   }).format(date);
+}
+
+function isMeetingStarted(value: string) {
+  const scheduledAt = new Date(value).getTime();
+  return Number.isFinite(scheduledAt) && scheduledAt <= Date.now();
 }

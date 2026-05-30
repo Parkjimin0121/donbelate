@@ -4122,6 +4122,88 @@ body {
   margin-left: auto;
 }
 
+/* Home upcoming meeting card */
+.upcoming-meeting-card {
+  display: grid;
+  min-height: 112px;
+  border: 1px solid var(--app-line);
+  border-radius: var(--app-radius-md);
+  background: var(--app-card);
+  box-shadow: var(--app-shadow);
+}
+
+.upcoming-meeting-card::before {
+  display: none;
+}
+
+.upcoming-meeting-link {
+  display: grid;
+  grid-template-columns: 4px minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  min-width: 0;
+  padding: 18px 22px;
+  color: inherit;
+}
+
+.upcoming-meeting-link::before {
+  width: 4px;
+  min-height: 66px;
+  border-radius: 999px;
+  background: var(--app-blue);
+  content: "";
+}
+
+.upcoming-meeting-copy {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.upcoming-room-name {
+  width: fit-content;
+  max-width: 100%;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: var(--app-blue-soft);
+  color: var(--app-blue);
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1;
+}
+
+.upcoming-meeting-copy strong {
+  overflow: hidden;
+  color: var(--app-ink);
+  font-size: 22px;
+  font-weight: 850;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.upcoming-meeting-copy span:not(.upcoming-room-name) {
+  overflow: hidden;
+  color: var(--app-muted);
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.upcoming-status {
+  align-self: start;
+  margin-top: 2px;
+  padding: 8px 11px;
+  border-radius: 999px;
+  background: var(--app-blue-soft);
+  color: var(--app-blue);
+  font-size: 13px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
 .logout-button {
   background: var(--app-red-soft);
   color: var(--app-red);
