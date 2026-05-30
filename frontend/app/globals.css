@@ -3851,6 +3851,65 @@ body {
   border-color: var(--app-blue);
 }
 
+/* Meeting member picker polish */
+.who-step-content {
+  width: calc(100% - 64px);
+  margin-top: 48px;
+}
+
+.wizard-member-panel {
+  padding: 28px 26px 30px;
+  border-radius: 24px;
+}
+
+.wizard-member-panel h2 {
+  margin-bottom: 22px;
+}
+
+.wizard-member-list {
+  gap: 14px;
+}
+
+.wizard-member-card {
+  grid-template-columns: 4px 52px minmax(0, 1fr) 36px;
+  min-height: 80px;
+  padding: 14px 18px;
+  gap: 16px;
+  align-items: center;
+}
+
+.wizard-member-card::before {
+  grid-column: 1;
+  width: 4px;
+  min-height: 48px;
+}
+
+.wizard-member-card .member-avatar {
+  grid-column: 2;
+  width: 52px;
+  height: 52px;
+}
+
+.wizard-member-card strong {
+  grid-column: 3;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--app-ink);
+  font-size: 22px;
+  font-weight: 850;
+  line-height: 1.25;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wizard-member-card .member-select-icon {
+  grid-column: 4;
+  justify-self: end;
+  width: 32px;
+  height: 32px;
+}
+
 .logout-button {
   background: var(--app-red-soft);
   color: var(--app-red);
