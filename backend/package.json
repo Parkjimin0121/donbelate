@@ -1,0 +1,17 @@
+{
+  "name": "dontbelate-backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Prototype backend API for Don't Be Late.",
+  "type": "module",
+  "scripts": {
+    "dev": "node src/server.js",
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "pg": "^8.13.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
