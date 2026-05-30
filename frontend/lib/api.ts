@@ -311,6 +311,13 @@ export function deleteRoom(roomId: string, token: string | null) {
   });
 }
 
+export function leaveRoom(roomId: string, token: string | null) {
+  return request<{ ok: true }>(`/rooms/${roomId}/leave`, {
+    method: "POST",
+    headers: authHeaders(token)
+  });
+}
+
 export function createMeeting(
   input: {
     roomId: string;

@@ -79,6 +79,36 @@ export async function handleRoomRoutes({ req, res, db, url, segments }) {
     return true;
   }
 
+  if (req.method === "POST" && segments[0] === "rooms" && segments[1] && segments[2] === "leave") {
+    const session = findSessionFromRequest(req, db);
+    const roomId = segments[1];
+    const room = db.rooms.find((item) => item.id === roomId);
+    if (!room) throw httpError(404, "Room not found.");
+    if (room.hostUserId === session.userId) {
+      throw httpError(409, "Room host cannot leave. Delete the room instead.");
+    }
+
+    const membership = db.roomMembers.find(
+      (member) => member.roomId === roomId && member.userId === session.userId
+    );
+    if (!membership) throw httpError(404, "Room membership not found.");
+
+    db.roomMembers = db.roomMembers.filter(
+      (member) => !(member.roomId === roomId && member.userId === session.userId)
+    );
+    db.meetings = db.meetings.map((meeting) => {
+      if (meeting.roomId !== roomId || !Array.isArray(meeting.participantUserIds)) return meeting;
+      return {
+        ...meeting,
+        participantUserIds: meeting.participantUserIds.filter((userId) => userId !== session.userId)
+      };
+    });
+
+    await saveDb(db);
+    sendJson(res, 200, { ok: true });
+    return true;
+  }
+
   if (req.method === "POST" && url.pathname === "/rooms/join") {
     const body = await readJson(req);
     requireFields(body, ["code"]);

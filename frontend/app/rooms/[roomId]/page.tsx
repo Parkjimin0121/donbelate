@@ -8,6 +8,7 @@ import {
   fetchMyRooms,
   fetchRoomMeetings,
   fetchRoomMembers,
+  leaveRoom,
   type Meeting,
   type RoomMember
 } from "@/lib/api";
@@ -19,6 +20,8 @@ export default function RoomDetailPage() {
   const roomId = params.roomId;
   const token = useAuthStore((state) => state.token);
   const [currentTime, setCurrentTime] = useState(() => Date.now());
+  const [leaveError, setLeaveError] = useState<string | null>(null);
+  const [isLeaving, setIsLeaving] = useState(false);
 
   const roomsQuery = useQuery({
     queryKey: ["me", "rooms", token],
@@ -45,11 +48,30 @@ export default function RoomDetailPage() {
   const meetings = meetingsQuery.data ?? [];
   const members = membersQuery.data ?? [];
   const isLoading = roomsQuery.isLoading || meetingsQuery.isLoading || membersQuery.isLoading;
+  const canLeaveRoom = Boolean(room && room.myRole !== "host");
 
   useEffect(() => {
     const timer = window.setInterval(() => setCurrentTime(Date.now()), 30000);
     return () => window.clearInterval(timer);
   }, []);
+
+  async function handleLeaveRoom() {
+    if (!token || !room) return;
+
+    const confirmed = window.confirm(`'${room.name}' 방에서 나갈까요?`);
+    if (!confirmed) return;
+
+    setLeaveError(null);
+    setIsLeaving(true);
+    try {
+      await leaveRoom(room.id, token);
+      router.replace("/");
+    } catch (error) {
+      setLeaveError(error instanceof Error ? error.message : "방에서 나가지 못했어요.");
+    } finally {
+      setIsLeaving(false);
+    }
+  }
 
   return (
     <main className="phone-frame simple-page room-detail-page">
@@ -110,6 +132,12 @@ export default function RoomDetailPage() {
             <MemberCard key={member.id} name={displayMemberName(member)} />
           ))}
         </div>
+        {leaveError ? <p className="room-leave-error">{leaveError}</p> : null}
+        {canLeaveRoom ? (
+          <button className="room-leave-button" disabled={isLeaving} type="button" onClick={handleLeaveRoom}>
+            {isLeaving ? "나가는 중" : "방 나가기"}
+          </button>
+        ) : null}
       </section>
     </main>
   );

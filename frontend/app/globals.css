@@ -4231,6 +4231,33 @@ body {
   letter-spacing: 0;
 }
 
+.room-leave-button {
+  display: block;
+  min-width: 112px;
+  height: 38px;
+  margin: 18px auto 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--app-red-soft);
+  color: var(--app-red);
+  font-size: 14px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.room-leave-button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.room-leave-error {
+  margin: 14px 0 0;
+  color: var(--app-red);
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+}
+
 /* Mypage polish */
 .mypage-page {
   padding-bottom: 118px;
