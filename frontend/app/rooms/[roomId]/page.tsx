@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
+  deleteRoom,
   fetchMyRooms,
   fetchRoomMeetings,
   fetchRoomMembers,
@@ -48,6 +49,7 @@ export default function RoomDetailPage() {
   const meetings = meetingsQuery.data ?? [];
   const members = membersQuery.data ?? [];
   const isLoading = roomsQuery.isLoading || meetingsQuery.isLoading || membersQuery.isLoading;
+  const isHostRoom = room?.myRole === "host";
   const canLeaveRoom = Boolean(room && room.myRole !== "host");
 
   useEffect(() => {
@@ -68,6 +70,24 @@ export default function RoomDetailPage() {
       router.replace("/");
     } catch (error) {
       setLeaveError(error instanceof Error ? error.message : "방에서 나가지 못했어요.");
+    } finally {
+      setIsLeaving(false);
+    }
+  }
+
+  async function handleDeleteRoom() {
+    if (!token || !room) return;
+
+    const confirmed = window.confirm(`'${room.name}' 방을 삭제할까요?`);
+    if (!confirmed) return;
+
+    setLeaveError(null);
+    setIsLeaving(true);
+    try {
+      await deleteRoom(room.id, token);
+      router.replace("/");
+    } catch (error) {
+      setLeaveError(error instanceof Error ? error.message : "방을 삭제하지 못했어요.");
     } finally {
       setIsLeaving(false);
     }
@@ -136,6 +156,11 @@ export default function RoomDetailPage() {
         {canLeaveRoom ? (
           <button className="room-leave-button" disabled={isLeaving} type="button" onClick={handleLeaveRoom}>
             {isLeaving ? "나가는 중" : "방 나가기"}
+          </button>
+        ) : null}
+        {isHostRoom ? (
+          <button className="room-leave-button" disabled={isLeaving} type="button" onClick={handleDeleteRoom}>
+            {isLeaving ? "삭제 중" : "방 삭제하기"}
           </button>
         ) : null}
       </section>
