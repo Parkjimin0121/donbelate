@@ -62,7 +62,10 @@ export default function RoomDetailPage() {
         >
           <span className="back-icon" aria-hidden="true" />
         </button>
-        <h1>{room?.name ?? (isLoading ? "방" : "방 정보")}</h1>
+        <div className="room-header-title">
+          <h1>{room?.name ?? (isLoading ? "방" : "방 정보")}</h1>
+          {room?.code ? <span className="room-code-chip">{room.code}</span> : null}
+        </div>
       </header>
 
       <section className="room-action-area">

@@ -4201,6 +4201,36 @@ body {
   color: var(--app-red);
 }
 
+/* Room header invite code */
+.room-header-title {
+  display: inline-flex;
+  max-width: calc(100% - 112px);
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.room-header-title h1 {
+  overflow: hidden;
+  min-width: 0;
+  margin: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.room-code-chip {
+  flex: none;
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: var(--app-blue-soft);
+  color: var(--app-blue);
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
 /* Mypage polish */
 .mypage-page {
   padding-bottom: 118px;
