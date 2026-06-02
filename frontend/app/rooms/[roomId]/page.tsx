@@ -31,9 +31,9 @@ export default function RoomDetailPage() {
   });
 
   const meetingsQuery = useQuery({
-    queryKey: ["rooms", roomId, "meetings"],
-    queryFn: () => fetchRoomMeetings(roomId),
-    enabled: Boolean(roomId)
+    queryKey: ["rooms", roomId, "meetings", token],
+    queryFn: () => fetchRoomMeetings(roomId, token),
+    enabled: Boolean(roomId && token)
   });
 
   const membersQuery = useQuery({

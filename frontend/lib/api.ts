@@ -199,8 +199,10 @@ export function fetchUpcomingMeetings(token: string | null) {
   });
 }
 
-export function fetchRoomMeetings(roomId: string) {
-  return request<Meeting[]>(`/rooms/${roomId}/meetings`);
+export function fetchRoomMeetings(roomId: string, token: string | null = null) {
+  return request<Meeting[]>(`/rooms/${roomId}/meetings`, {
+    headers: authHeaders(token)
+  });
 }
 
 export function fetchRoomMembers(roomId: string) {

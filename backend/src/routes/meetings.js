@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { saveDb } from "../db/jsonStore.js";
 import { drawLateFee } from "../services/bids.js";
 import { settleMeeting } from "../services/settlements.js";
+import { findSessionFromRequest, readBearerToken } from "./auth.js";
 import { distanceMeters } from "../utils/geo.js";
 import { readJson, sendJson } from "../utils/http.js";
 import { httpError } from "../utils/errors.js";
@@ -38,7 +39,13 @@ export async function handleMeetingRoutes({ req, res, db, url, segments }) {
 
   if (req.method === "GET" && segments[0] === "rooms" && segments[2] === "meetings") {
     const roomId = segments[1];
-    sendJson(res, 200, db.meetings.filter((meeting) => meeting.roomId === roomId));
+    const session = readBearerToken(req) ? findSessionFromRequest(req, db) : null;
+    const meetings = db.meetings.filter(
+      (meeting) =>
+        meeting.roomId === roomId &&
+        (!session || isMeetingParticipant(meeting, session.userId))
+    );
+    sendJson(res, 200, meetings);
     return true;
   }
 
@@ -375,7 +382,11 @@ function normalizeParticipantUserIds(db, roomId, participantUserIds) {
     .map((userId) => String(userId))
     .filter((userId, index, ids) => roomMemberIds.has(userId) && ids.indexOf(userId) === index);
 
-  return selectedIds.length > 0 ? selectedIds : [...roomMemberIds];
+  if (selectedIds.length === 0) {
+    throw httpError(400, "At least one valid meeting participant is required.");
+  }
+
+  return selectedIds;
 }
 
 function getMeetingRoomMembers(db, meeting) {

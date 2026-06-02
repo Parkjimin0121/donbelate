@@ -36,6 +36,7 @@ export default function NewMeetingPage() {
   const params = useParams<{ roomId: string }>();
   const roomId = params.roomId;
   const token = useAuthStore((state) => state.token);
+  const user = useAuthStore((state) => state.user);
   const [step, setStep] = useState<MeetingStep>("when");
   const [selectedDate, setSelectedDate] = useState(() => new Date(2026, 8, 9));
   const [hour, setHour] = useState("10");
@@ -62,8 +63,10 @@ export default function NewMeetingPage() {
 
   useEffect(() => {
     if (selectedMemberIds.length > 0 || members.length === 0) return;
-    setSelectedMemberIds(members.slice(0, 2).map((member) => member.userId));
-  }, [members, selectedMemberIds.length]);
+    if (!user) return;
+    const currentMember = user ? members.find((member) => member.userId === user.id) : null;
+    setSelectedMemberIds(currentMember ? [currentMember.userId] : []);
+  }, [members, selectedMemberIds.length, user]);
 
   const calendarDays = useMemo(() => buildCalendarDays(selectedDate), [selectedDate]);
 
