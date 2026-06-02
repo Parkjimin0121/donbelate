@@ -7,6 +7,12 @@ export function settleMeeting(db, meeting) {
     throw httpError(409, "Late fee has not been finalized.");
   }
 
+  const existingSettlement = db.settlements.find((item) => item.meetingId === meeting.id);
+  if (existingSettlement) {
+    meeting.status = "settled";
+    return existingSettlement;
+  }
+
   const roomMembers = db.roomMembers.filter((member) => member.roomId === meeting.roomId);
   const participants =
     Array.isArray(meeting.participantUserIds) && meeting.participantUserIds.length > 0

@@ -118,6 +118,24 @@ export type MeetingComment = {
   user?: User | null;
 };
 
+export type SettlementDistribution = {
+  userId: string;
+  lateMinutes: number;
+  waitingMinutes: number;
+  lateFee: number;
+  reward: number;
+};
+
+export type Settlement = {
+  id: string;
+  meetingId: string;
+  finalLateFeePerMinute: number;
+  totalLateFee: number;
+  totalWaitingMinutes: number;
+  distributions: SettlementDistribution[];
+  createdAt: string;
+};
+
 export type MeResponse = {
   user: User;
   pointBalance: number;
@@ -282,6 +300,13 @@ export function createMeetingComment(
     method: "POST",
     headers: authHeaders(token),
     body: JSON.stringify(input)
+  });
+}
+
+export function settleMeeting(meetingId: string, token: string | null) {
+  return request<Settlement>(`/meetings/${meetingId}/settle`, {
+    method: "POST",
+    headers: authHeaders(token)
   });
 }
 
