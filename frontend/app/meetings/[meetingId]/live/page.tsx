@@ -127,9 +127,19 @@ export default function LiveMeetingPage() {
   }, [locationQuery, meetingId, meetingQuery.data, tab, token, user]);
 
   const meeting = meetingQuery.data;
-  const arrivals = arrivalQuery.data ?? [];
-  const locations = locationQuery.data ?? [];
-  const bets = betsQuery.data ?? [];
+  const participantIds = new Set(meeting?.participantUserIds ?? []);
+  const hasParticipantFilter = participantIds.size > 0;
+  const arrivals = (arrivalQuery.data ?? []).filter(
+    (arrival) => !hasParticipantFilter || participantIds.has(arrival.userId)
+  );
+  const locations = (locationQuery.data ?? []).filter(
+    (location) => !hasParticipantFilter || participantIds.has(location.userId)
+  );
+  const bets = (betsQuery.data ?? []).filter(
+    (bet) =>
+      (!hasParticipantFilter || participantIds.has(bet.bettorUserId)) &&
+      (!hasParticipantFilter || participantIds.has(bet.targetUserId))
+  );
   const comments = commentsQuery.data ?? [];
   const myArrival = arrivals.find((arrival) => arrival.userId === user?.id);
   const canCheckin = Boolean(meeting && currentTime >= new Date(meeting.scheduledAt).getTime() && !myArrival?.arrived);
