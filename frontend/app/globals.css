@@ -5675,3 +5675,42 @@ body {
     max-width: 112vw;
   }
 }
+
+/* Settlement 3D apple asset sizing */
+.settlement-apple-page .apple-image-wrap,
+.settlement-apple-page .apple-button-open .apple-image-wrap {
+  width: min(124vw, 570px);
+  height: min(124vw, 570px);
+  max-width: none;
+  max-height: none;
+}
+
+.settlement-apple-page .settlement-apple-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: scale(1.18);
+  transform-origin: center center;
+  filter: drop-shadow(0 30px 34px rgba(42, 61, 104, 0.2));
+}
+
+.settlement-apple-page .apple-button-open .settlement-apple-image {
+  transform: scale(1.2);
+}
+
+.settlement-apple-page .apple-button-label {
+  margin-top: -56px;
+}
+
+.settlement-apple-page .apple-image-wrap .apple-amount-text {
+  top: 54%;
+}
+
+@media (max-width: 520px) {
+  .settlement-apple-page .apple-image-wrap,
+  .settlement-apple-page .apple-button-open .apple-image-wrap {
+    width: 500px;
+    height: 500px;
+    max-width: 128vw;
+  }
+}

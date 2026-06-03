@@ -164,7 +164,7 @@ export default function MeetingSettlementPage() {
           disabled={isSettling || !hasLateFee}
         >
           <span className="apple-image-wrap" aria-hidden="true">
-            <img className="settlement-apple-image" src={settlement ? "/settlement-apple-open.svg" : "/settlement-apple.svg"} alt="" />
+            <img className="settlement-apple-image" src={settlement ? "/settlement-apple-open-3d.png" : "/settlement-apple-3d.png"} alt="" />
             {settlement ? <span className="apple-amount-text">{displayAmount.toLocaleString()}{TEXT.won}</span> : null}
           </span>
           <span className="apple-button-label">
@@ -217,3 +217,4 @@ function formatMeetingDateTime(value: string) {
     hour12: false
   }).format(date);
 }
+
