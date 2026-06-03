@@ -114,7 +114,7 @@ export default function HomePage() {
 
 function UpcomingMeetingCard({ meeting }: { meeting: Meeting }) {
   const roomName = meeting.room?.name ?? "방 정보 없음";
-  const href = meeting.status === "bidding" ? `/bid/${meeting.id}` : isMeetingStarted(meeting.scheduledAt) ? `/meetings/${meeting.id}/live` : undefined;
+  const href = meeting.status === "bidding" ? `/bid/${meeting.id}` : meeting.status === "settling" ? `/meetings/${meeting.id}/settlement` : isMeetingStarted(meeting.scheduledAt) ? `/meetings/${meeting.id}/live` : undefined;
 
   const content = (
     <>

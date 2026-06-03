@@ -18,6 +18,7 @@ const initialDb = {
   horseBets: [],
   meetingComments: [],
   settlements: [],
+  settlementConfirmations: [],
   pointTransactions: [],
   sessions: []
 };

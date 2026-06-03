@@ -5742,3 +5742,23 @@ body {
     max-width: 106vw;
   }
 }
+
+/* Roulette result home action */
+.roulette-home-button {
+  display: block;
+  width: min(76vw, 320px);
+  min-height: 56px;
+  margin: 18px auto 0;
+  border: 0;
+  border-radius: var(--app-radius-md);
+  background: var(--app-blue);
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 900;
+  box-shadow: 0 14px 28px rgba(91, 127, 239, 0.24);
+  cursor: pointer;
+}
+
+.roulette-home-button:active {
+  background: var(--app-blue-pressed);
+}

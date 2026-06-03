@@ -46,7 +46,7 @@ export async function handleMeetingRoutes({ req, res, db, url, segments }) {
       (meeting) =>
         meeting.roomId === roomId &&
         (!session || isMeetingParticipant(meeting, session.userId))
-    ).map((meeting) => withNormalizedParticipants(db, meeting));
+    ).map((meeting) => withMeetingResponse(db, meeting));
     sendJson(res, 200, meetings);
     return true;
   }
@@ -54,7 +54,7 @@ export async function handleMeetingRoutes({ req, res, db, url, segments }) {
   if (req.method === "GET" && segments[0] === "meetings" && segments[1] && !segments[2]) {
     const meeting = findMeeting(db, segments[1]);
     sendJson(res, 200, {
-      ...withNormalizedParticipants(db, meeting),
+      ...withMeetingResponse(db, meeting),
       room: db.rooms.find((room) => room.id === meeting.roomId) ?? null
     });
     return true;
@@ -118,7 +118,8 @@ export async function handleMeetingRoutes({ req, res, db, url, segments }) {
 
   if (req.method === "POST" && segments[0] === "meetings" && segments[2] === "settle") {
     const meeting = findMeeting(db, segments[1]);
-    const settlement = settleMeeting(db, meeting);
+    const session = findSessionFromRequest(req, db);
+    const settlement = settleMeeting(db, meeting, session.userId);
     await saveDb(db);
     sendJson(res, 200, settlement);
     return true;
@@ -394,11 +395,27 @@ function normalizeParticipantUserIds(db, roomId, participantUserIds, fallbackUse
   return selectedIds;
 }
 
-function withNormalizedParticipants(db, meeting) {
-  return {
+function withMeetingResponse(db, meeting) {
+  const normalizedMeeting = {
     ...meeting,
     participantUserIds: getNormalizedParticipantUserIds(db, meeting)
   };
+
+  return {
+    ...normalizedMeeting,
+    status: deriveMeetingStatus(normalizedMeeting)
+  };
+}
+
+function deriveMeetingStatus(meeting) {
+  if (meeting.status === "bidding" || meeting.status === "settled") return meeting.status;
+  if (meeting.status === "settling") return "settling";
+
+  const scheduledTime = new Date(meeting.scheduledAt).getTime();
+  if (Number.isNaN(scheduledTime)) return meeting.status;
+
+  if (Date.now() >= scheduledTime + 60 * 60 * 1000) return "settling";
+  return meeting.status;
 }
 
 function getNormalizedParticipantUserIds(db, meeting) {

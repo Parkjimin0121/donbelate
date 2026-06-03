@@ -129,11 +129,12 @@ export default function RoomDetailPage() {
           {meetings.map((meeting) => {
             const inProgress = isMeetingInProgress(meeting, currentTime);
             const isBidding = meeting.status === "bidding";
-            const status = isBidding ? "입찰중" : inProgress ? "진행중" : "예정됨";
+            const isSettling = isMeetingSettling(meeting, currentTime);
+            const status = isBidding ? "입찰중" : isSettling ? "정산중" : inProgress ? "진행중" : "예정됨";
             return (
               <PromiseCard
                 key={meeting.id}
-                href={isBidding ? `/bid/${meeting.id}` : inProgress ? `/meetings/${meeting.id}/live` : undefined}
+                href={isBidding ? `/bid/${meeting.id}` : isSettling ? `/meetings/${meeting.id}/settlement` : inProgress ? `/meetings/${meeting.id}/live` : undefined}
                 title={formatMeetingDateTime(meeting)}
                 subtitle={meeting.title}
                 status={status}
@@ -219,12 +220,22 @@ function displayMemberName(member: RoomMember) {
 }
 
 function isMeetingInProgress(meeting: Meeting, currentTime: number) {
-  if (meeting.status === "settled") return false;
+  if (meeting.status === "settled" || meeting.status === "settling") return false;
 
   const scheduledTime = new Date(meeting.scheduledAt).getTime();
   if (Number.isNaN(scheduledTime)) return false;
 
-  return scheduledTime <= currentTime;
+  return scheduledTime <= currentTime && currentTime < scheduledTime + 60 * 60 * 1000;
+}
+
+function isMeetingSettling(meeting: Meeting, currentTime: number) {
+  if (meeting.status === "settling") return true;
+  if (meeting.status === "bidding" || meeting.status === "settled") return false;
+
+  const scheduledTime = new Date(meeting.scheduledAt).getTime();
+  if (Number.isNaN(scheduledTime)) return false;
+
+  return currentTime >= scheduledTime + 60 * 60 * 1000;
 }
 
 function formatMeetingDateTime(meeting: Meeting) {

@@ -2,20 +2,55 @@ import { randomUUID } from "node:crypto";
 import { httpError } from "../utils/errors.js";
 import { minutesLate, nowIso } from "../utils/time.js";
 
-export function settleMeeting(db, meeting) {
+export function settleMeeting(db, meeting, userId) {
   if (!meeting.finalLateFeePerMinute) {
     throw httpError(409, "Late fee has not been finalized.");
   }
 
-  const existingSettlement = db.settlements.find((item) => item.meetingId === meeting.id);
-  if (existingSettlement) {
-    removeMeetingAfterSettlement(db, meeting.id);
-    return existingSettlement;
+  const participantUserIds = getNormalizedParticipantUserIds(db, meeting);
+  if (!participantUserIds.includes(userId)) {
+    throw httpError(403, "Only meeting participants can settle.");
   }
 
-  const roomMembers = db.roomMembers.filter((member) => member.roomId === meeting.roomId);
-  const participantIds = new Set(getNormalizedParticipantUserIds(db, meeting));
-  const participants = roomMembers.filter((member) => participantIds.has(member.userId));
+  const existingSettlement = db.settlements.find((item) => item.meetingId === meeting.id);
+  const settlement = existingSettlement ?? createSettlement(db, meeting, participantUserIds);
+
+  db.settlementConfirmations = Array.isArray(db.settlementConfirmations)
+    ? db.settlementConfirmations
+    : [];
+
+  const alreadyConfirmed = db.settlementConfirmations.some(
+    (item) => item.meetingId === meeting.id && item.userId === userId
+  );
+
+  if (!alreadyConfirmed) {
+    db.settlementConfirmations.push({
+      id: randomUUID(),
+      meetingId: meeting.id,
+      userId,
+      createdAt: nowIso()
+    });
+  }
+
+  const confirmedUserIds = new Set(
+    db.settlementConfirmations
+      .filter((item) => item.meetingId === meeting.id)
+      .map((item) => item.userId)
+  );
+
+  if (participantUserIds.every((participantId) => confirmedUserIds.has(participantId))) {
+    removeMeetingAfterSettlement(db, meeting.id);
+  } else {
+    meeting.status = "settling";
+  }
+
+  return settlement;
+}
+
+function createSettlement(db, meeting, participantUserIds) {
+  const participantIdSet = new Set(participantUserIds);
+  const roomMembers = db.roomMembers.filter((member) => meeting.roomId === member.roomId);
+  const participants = roomMembers.filter((member) => participantIdSet.has(member.userId));
   const checkins = db.checkins.filter((checkin) => checkin.meetingId === meeting.id);
   const checkinByUser = new Map(checkins.map((checkin) => [checkin.userId, checkin]));
 
@@ -100,7 +135,6 @@ export function settleMeeting(db, meeting) {
 
   db.settlements = db.settlements.filter((item) => item.meetingId !== meeting.id);
   db.settlements.push(settlement);
-  removeMeetingAfterSettlement(db, meeting.id);
   return settlement;
 }
 
@@ -111,6 +145,9 @@ function removeMeetingAfterSettlement(db, meetingId) {
   db.liveLocations = db.liveLocations.filter((location) => location.meetingId !== meetingId);
   db.horseBets = db.horseBets.filter((bet) => bet.meetingId !== meetingId);
   db.meetingComments = db.meetingComments.filter((comment) => comment.meetingId !== meetingId);
+  db.settlementConfirmations = (db.settlementConfirmations ?? []).filter(
+    (confirmation) => confirmation.meetingId !== meetingId
+  );
 }
 
 function getNormalizedParticipantUserIds(db, meeting) {
@@ -137,4 +174,3 @@ function getNormalizedParticipantUserIds(db, meeting) {
   if (selectedIds.length > 0) return selectedIds;
   return roomMemberIds;
 }
-

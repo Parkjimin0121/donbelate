@@ -109,6 +109,12 @@ export default function RoulettePage() {
           </p>
         </section>
       ) : null}
+
+      {hasSpun ? (
+        <button className="roulette-home-button" type="button" onClick={() => router.push("/")}>
+          홈으로 돌아가기
+        </button>
+      ) : null}
     </main>
   );
 }

@@ -73,11 +73,12 @@ export async function handleUserRoutes({ req, res, db, url, segments }) {
         (meeting) =>
           myRoomIds.includes(meeting.roomId) &&
           isVisibleMeetingForUser(meeting, session.userId) &&
-          (meeting.status === "bidding" || new Date(meeting.scheduledAt).getTime() >= now)
+          (deriveMeetingStatus(meeting, now) === "bidding" || deriveMeetingStatus(meeting, now) === "settling" || new Date(meeting.scheduledAt).getTime() >= now)
       )
       .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())
       .map((meeting) => ({
         ...meeting,
+        status: deriveMeetingStatus(meeting, now),
         room: db.rooms.find((room) => room.id === meeting.roomId) ?? null
       }));
 
@@ -123,4 +124,14 @@ function isVisibleMeetingForUser(meeting, userId) {
     return participantIds.slice(0, Number(meeting.capacity)).includes(userId);
   }
   return participantIds.includes(userId);
+}
+function deriveMeetingStatus(meeting, now = Date.now()) {
+  if (meeting.status === "bidding" || meeting.status === "settled") return meeting.status;
+  if (meeting.status === "settling") return "settling";
+
+  const scheduledTime = new Date(meeting.scheduledAt).getTime();
+  if (Number.isNaN(scheduledTime)) return meeting.status;
+
+  if (now >= scheduledTime + 60 * 60 * 1000) return "settling";
+  return meeting.status;
 }
