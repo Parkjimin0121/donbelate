@@ -5637,3 +5637,41 @@ body {
     max-width: 116vw;
   }
 }
+
+
+/* Settlement apple vertical dominance */
+.settlement-apple-page .apple-image-wrap,
+.settlement-apple-page .apple-button-open .apple-image-wrap {
+  width: min(110vw, 500px);
+  height: min(132vw, 610px);
+  max-width: none;
+  max-height: none;
+}
+
+.settlement-apple-page .settlement-apple-image {
+  height: 100%;
+  object-fit: fill;
+  transform: scale(1.04, 1.2);
+  transform-origin: center center;
+}
+
+.settlement-apple-page .apple-button-open .settlement-apple-image {
+  transform: scale(1.06, 1.22);
+}
+
+.settlement-apple-page .apple-button-label {
+  margin-top: -42px;
+}
+
+.settlement-apple-page .apple-image-wrap .apple-amount-text {
+  top: 56%;
+}
+
+@media (max-width: 520px) {
+  .settlement-apple-page .apple-image-wrap,
+  .settlement-apple-page .apple-button-open .apple-image-wrap {
+    width: 430px;
+    height: 535px;
+    max-width: 112vw;
+  }
+}
