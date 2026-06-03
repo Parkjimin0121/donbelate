@@ -9,7 +9,7 @@ export function settleMeeting(db, meeting) {
 
   const existingSettlement = db.settlements.find((item) => item.meetingId === meeting.id);
   if (existingSettlement) {
-    meeting.status = "settled";
+    removeMeetingAfterSettlement(db, meeting.id);
     return existingSettlement;
   }
 
@@ -100,8 +100,17 @@ export function settleMeeting(db, meeting) {
 
   db.settlements = db.settlements.filter((item) => item.meetingId !== meeting.id);
   db.settlements.push(settlement);
-  meeting.status = "settled";
+  removeMeetingAfterSettlement(db, meeting.id);
   return settlement;
+}
+
+function removeMeetingAfterSettlement(db, meetingId) {
+  db.meetings = db.meetings.filter((meeting) => meeting.id !== meetingId);
+  db.bids = db.bids.filter((bid) => bid.meetingId !== meetingId);
+  db.checkins = db.checkins.filter((checkin) => checkin.meetingId !== meetingId);
+  db.liveLocations = db.liveLocations.filter((location) => location.meetingId !== meetingId);
+  db.horseBets = db.horseBets.filter((bet) => bet.meetingId !== meetingId);
+  db.meetingComments = db.meetingComments.filter((comment) => comment.meetingId !== meetingId);
 }
 
 function getNormalizedParticipantUserIds(db, meeting) {
@@ -128,3 +137,4 @@ function getNormalizedParticipantUserIds(db, meeting) {
   if (selectedIds.length > 0) return selectedIds;
   return roomMemberIds;
 }
+
