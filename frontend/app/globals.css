@@ -5714,3 +5714,31 @@ body {
     max-width: 128vw;
   }
 }
+
+/* Settlement 3D apple gentle size trim */
+.settlement-apple-page .apple-image-wrap,
+.settlement-apple-page .apple-button-open .apple-image-wrap {
+  width: min(104vw, 470px);
+  height: min(104vw, 470px);
+}
+
+.settlement-apple-page .settlement-apple-image {
+  transform: scale(1.06);
+}
+
+.settlement-apple-page .apple-button-open .settlement-apple-image {
+  transform: scale(1.08);
+}
+
+.settlement-apple-page .apple-button-label {
+  margin-top: -32px;
+}
+
+@media (max-width: 520px) {
+  .settlement-apple-page .apple-image-wrap,
+  .settlement-apple-page .apple-button-open .apple-image-wrap {
+    width: 410px;
+    height: 410px;
+    max-width: 106vw;
+  }
+}
