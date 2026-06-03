@@ -152,6 +152,7 @@ export type AppNotification = {
 export type MeResponse = {
   user: User;
   pointBalance: number;
+  noShowStack: number;
 };
 
 export type PointTransaction = {

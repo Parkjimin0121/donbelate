@@ -32,7 +32,8 @@ export async function handleUserRoutes({ req, res, db, url, segments }) {
     const user = db.users.find((item) => item.id === session.userId);
     sendJson(res, 200, {
       user: publicUser(user),
-      pointBalance: getPointBalance(db, session.userId)
+      pointBalance: getPointBalance(db, session.userId),
+      noShowStack: countNoShows(db, session.userId)
     });
     return true;
   }
@@ -122,6 +123,20 @@ export async function handleUserRoutes({ req, res, db, url, segments }) {
   return false;
 }
 
+function countNoShows(db, userId) {
+  const now = Date.now();
+  return db.meetings.filter((meeting) => {
+    if (meeting.status === "bidding") return false;
+    if (!isVisibleMeetingForUser(meeting, userId)) return false;
+
+    const scheduledAt = new Date(meeting.scheduledAt).getTime();
+    if (Number.isNaN(scheduledAt) || now < scheduledAt + 60 * 60 * 1000) return false;
+
+    return !db.checkins.some(
+      (checkin) => checkin.meetingId === meeting.id && checkin.userId === userId
+    );
+  }).length;
+}
 function isExpiredSettledMeeting(meeting, now = Date.now()) {
   if (meeting.status !== "settled") return false;
   const settledAt = new Date(meeting.settledAt ?? meeting.updatedAt ?? meeting.createdAt ?? 0).getTime();

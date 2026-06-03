@@ -38,6 +38,7 @@ export default function MyPage() {
   });
 
   const balance = pointsQuery.data?.balance ?? meQuery.data?.pointBalance ?? 1200;
+  const noShowStack = meQuery.data?.noShowStack ?? 0;
   const transactions =
     pointsQuery.data && pointsQuery.data.transactions.length > 0
       ? pointsQuery.data.transactions.slice(-3).reverse()
@@ -69,6 +70,16 @@ export default function MyPage() {
           <button className="logout-button" type="button" onClick={handleLogout}>
             로그아웃
           </button>
+        </div>
+      </section>
+      <section className="mypage-section no-show-section">
+        <h2>노쇼 스택</h2>
+        <div className="no-show-summary-card">
+          <div>
+            <strong>{noShowStack}회</strong>
+            <span>체크인 없이 지나간 약속</span>
+          </div>
+          <span className="no-show-badge">주의</span>
         </div>
       </section>
 
