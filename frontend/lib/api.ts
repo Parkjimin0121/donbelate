@@ -136,6 +136,18 @@ export type Settlement = {
   createdAt: string;
 };
 
+export type AppNotification = {
+  id: string;
+  userId: string;
+  meetingId?: string;
+  roomId?: string;
+  type: string;
+  title: string;
+  message: string;
+  href?: string;
+  readAt?: string | null;
+  createdAt: string;
+};
 export type MeResponse = {
   user: User;
   pointBalance: number;
@@ -193,6 +205,11 @@ export function fetchUserPoints(userId: string) {
   return request<UserPointsResponse>(`/users/${userId}/points`);
 }
 
+export function fetchMyNotifications(token: string | null) {
+  return request<AppNotification[]>("/me/notifications", {
+    headers: authHeaders(token)
+  });
+}
 export function fetchUpcomingMeetings(token: string | null) {
   return request<Meeting[]>("/me/upcoming-meetings", {
     headers: authHeaders(token)

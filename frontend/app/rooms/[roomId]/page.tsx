@@ -225,17 +225,11 @@ function isMeetingInProgress(meeting: Meeting, currentTime: number) {
   const scheduledTime = new Date(meeting.scheduledAt).getTime();
   if (Number.isNaN(scheduledTime)) return false;
 
-  return scheduledTime <= currentTime && currentTime < scheduledTime + 60 * 60 * 1000;
+  return scheduledTime <= currentTime;
 }
 
-function isMeetingSettling(meeting: Meeting, currentTime: number) {
-  if (meeting.status === "settling") return true;
-  if (meeting.status === "bidding" || meeting.status === "settled") return false;
-
-  const scheduledTime = new Date(meeting.scheduledAt).getTime();
-  if (Number.isNaN(scheduledTime)) return false;
-
-  return currentTime >= scheduledTime + 60 * 60 * 1000;
+function isMeetingSettling(meeting: Meeting, _currentTime: number) {
+  return meeting.status === "settling";
 }
 
 function formatMeetingDateTime(meeting: Meeting) {

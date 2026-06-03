@@ -408,13 +408,7 @@ function withMeetingResponse(db, meeting) {
 }
 
 function deriveMeetingStatus(meeting) {
-  if (meeting.status === "bidding" || meeting.status === "settled") return meeting.status;
-  if (meeting.status === "settling") return "settling";
-
-  const scheduledTime = new Date(meeting.scheduledAt).getTime();
-  if (Number.isNaN(scheduledTime)) return meeting.status;
-
-  if (Date.now() >= scheduledTime + 60 * 60 * 1000) return "settling";
+  if (meeting.status === "bidding" || meeting.status === "settled" || meeting.status === "settling") return meeting.status;
   return meeting.status;
 }
 

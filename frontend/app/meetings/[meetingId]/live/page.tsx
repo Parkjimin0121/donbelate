@@ -154,8 +154,8 @@ export default function LiveMeetingPage() {
     .filter((arrival) => arrival.arrived)
     .sort((a, b) => new Date(a.arrivedAt ?? "").getTime() - new Date(b.arrivedAt ?? "").getTime());
   const lateMembers = arrivals.filter((arrival) => !arrival.arrived);
-  const isSettlementWindow = Boolean(meeting && (meeting.status === "settling" || currentTime >= new Date(meeting.scheduledAt).getTime() + 60 * 60 * 1000));
-  const canSettle = Boolean(meeting && isSettlementWindow && arrivals.length > 0);
+  const allParticipantsCheckedIn = arrivals.length > 0 && arrivals.every((arrival) => arrival.arrived);
+  const canSettle = Boolean(meeting && isMeetingStarted && allParticipantsCheckedIn);
   const runners = lateMembers.length > 0 ? lateMembers : arrivals.slice(0, 2);
   const selectedRunner = runners.find((runner) => runner.userId === selectedRunnerId) ?? runners[0];
 
@@ -286,7 +286,6 @@ export default function LiveMeetingPage() {
           checkinError={checkinError}
           currentTime={currentTime}
           isMeetingStarted={isMeetingStarted}
-          isSettlementWindow={isSettlementWindow}
           lateMembers={lateMembers}
           meeting={meeting}
           onCheckin={handleCheckin}
@@ -341,7 +340,6 @@ function InfoTab({
   checkinError,
   currentTime,
   isMeetingStarted,
-  isSettlementWindow,
   lateMembers,
   meeting,
   onCheckin,
@@ -353,7 +351,6 @@ function InfoTab({
   checkinError: string | null;
   currentTime: number;
   isMeetingStarted: boolean;
-  isSettlementWindow: boolean;
   lateMembers: ArrivalStatus[];
   meeting?: Meeting;
   onCheckin: () => void;
@@ -392,9 +389,9 @@ function InfoTab({
       <button className="checkin-button" disabled={!canCheckin} type="button" onClick={onCheckin}>
         체크인 하기
       </button>
-      {isSettlementWindow ? (
+      {isMeetingStarted ? (
         <button className="settle-button" disabled={!canSettle} type="button" onClick={onSettle}>
-          {canSettle ? "정산하기" : "참여자 정보를 불러오는 중"}
+          {canSettle ? "정산하기" : "모두 체크인하면 정산할 수 있어요"}
         </button>
       ) : null}
       {checkinError ? <p className="live-error">{checkinError}</p> : null}

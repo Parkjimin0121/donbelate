@@ -12,6 +12,13 @@ export function settleMeeting(db, meeting, userId) {
     throw httpError(403, "Only meeting participants can settle.");
   }
 
+  const checkedInUserIds = new Set(
+    db.checkins.filter((checkin) => checkin.meetingId === meeting.id).map((checkin) => checkin.userId)
+  );
+  if (!participantUserIds.every((participantId) => checkedInUserIds.has(participantId))) {
+    throw httpError(409, "All meeting participants must check in before settlement.");
+  }
+
   const existingSettlement = db.settlements.find((item) => item.meetingId === meeting.id);
   const settlement = existingSettlement ?? createSettlement(db, meeting, participantUserIds);
 

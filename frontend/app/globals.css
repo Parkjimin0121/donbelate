@@ -5762,3 +5762,35 @@ body {
 .roulette-home-button:active {
   background: var(--app-blue-pressed);
 }
+
+/* Home settlement notification */
+.notification-panel {
+  display: grid;
+  gap: 10px;
+  margin: 22px 28px 0;
+}
+
+.notification-card {
+  display: grid;
+  gap: 5px;
+  padding: 16px 18px;
+  border: 1px solid #dfe6ff;
+  border-radius: var(--app-radius-md);
+  background: #f3f6ff;
+  color: var(--app-ink);
+  text-decoration: none;
+  box-shadow: 0 12px 28px rgba(91, 127, 239, 0.14);
+}
+
+.notification-card strong {
+  color: var(--app-blue);
+  font-size: 16px;
+  font-weight: 950;
+}
+
+.notification-card span {
+  color: var(--app-muted);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.35;
+}

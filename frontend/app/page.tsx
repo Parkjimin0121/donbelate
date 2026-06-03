@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { deleteRoom, fetchMyRooms, fetchUpcomingMeetings, type Meeting } from "@/lib/api";
+import { deleteRoom, fetchMyNotifications, fetchMyRooms, fetchUpcomingMeetings, type AppNotification, type Meeting } from "@/lib/api";
 import { useAuthStore } from "@/stores/auth-store";
 
 export default function HomePage() {
@@ -23,7 +23,14 @@ export default function HomePage() {
     enabled: Boolean(token)
   });
 
+const notificationsQuery = useQuery({
+    queryKey: ["me", "notifications", token],
+    queryFn: () => fetchMyNotifications(token),
+    enabled: Boolean(token)
+  });
+
   const firstMeeting = meetingsQuery.data?.[0];
+  const notifications = notificationsQuery.data ?? [];
   const roomCards = useMemo(() => roomsQuery.data ?? [], [roomsQuery.data]);
 
   async function handleDeleteRoom(roomId: string, roomName: string) {
@@ -65,6 +72,14 @@ export default function HomePage() {
           <span>기존 방 참가하기</span>
         </Link>
       </section>
+
+      {notifications.length > 0 ? (
+        <section className="notification-panel" aria-label="알림">
+          {notifications.slice(0, 2).map((notification) => (
+            <NotificationCard key={notification.id} notification={notification} />
+          ))}
+        </section>
+      ) : null}
 
       <section className="content-panel rooms-panel">
         <h2>참가한 방</h2>
@@ -109,6 +124,23 @@ export default function HomePage() {
         <NavItem icon="profile" label="마이페이지" href="/mypage" />
       </nav>
     </main>
+  );
+}
+
+function NotificationCard({ notification }: { notification: AppNotification }) {
+  const content = (
+    <>
+      <strong>{notification.title}</strong>
+      <span>{notification.message}</span>
+    </>
+  );
+
+  return notification.href ? (
+    <Link className="notification-card" href={notification.href}>
+      {content}
+    </Link>
+  ) : (
+    <article className="notification-card">{content}</article>
   );
 }
 

@@ -19,6 +19,7 @@ const initialDb = {
   meetingComments: [],
   settlements: [],
   settlementConfirmations: [],
+  notifications: [],
   pointTransactions: [],
   sessions: []
 };

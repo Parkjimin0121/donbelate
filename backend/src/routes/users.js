@@ -86,6 +86,14 @@ export async function handleUserRoutes({ req, res, db, url, segments }) {
     return true;
   }
 
+  if (req.method === "GET" && url.pathname === "/me/notifications") {
+    const session = findSessionFromRequest(req, db);
+    const notifications = ensureSettlementReminderNotifications(db, session.userId);
+    await saveDb(db);
+    sendJson(res, 200, notifications);
+    return true;
+  }
+
   if (req.method === "GET" && url.pathname === "/users") {
     sendJson(
       res,
@@ -125,13 +133,56 @@ function isVisibleMeetingForUser(meeting, userId) {
   }
   return participantIds.includes(userId);
 }
-function deriveMeetingStatus(meeting, now = Date.now()) {
-  if (meeting.status === "bidding" || meeting.status === "settled") return meeting.status;
-  if (meeting.status === "settling") return "settling";
-
-  const scheduledTime = new Date(meeting.scheduledAt).getTime();
-  if (Number.isNaN(scheduledTime)) return meeting.status;
-
-  if (now >= scheduledTime + 60 * 60 * 1000) return "settling";
+function deriveMeetingStatus(meeting) {
+  if (meeting.status === "bidding" || meeting.status === "settled" || meeting.status === "settling") return meeting.status;
   return meeting.status;
+}
+function ensureSettlementReminderNotifications(db, userId) {
+  db.notifications = Array.isArray(db.notifications) ? db.notifications : [];
+  db.settlementConfirmations = Array.isArray(db.settlementConfirmations) ? db.settlementConfirmations : [];
+
+  const now = Date.now();
+  const myRoomIds = db.roomMembers
+    .filter((member) => member.userId === userId)
+    .map((member) => member.roomId);
+
+  for (const meeting of db.meetings) {
+    if (!myRoomIds.includes(meeting.roomId)) continue;
+    if (!isVisibleMeetingForUser(meeting, userId)) continue;
+    if (meeting.status === "bidding" || meeting.status === "settled") continue;
+
+    const scheduledTime = new Date(meeting.scheduledAt).getTime();
+    if (Number.isNaN(scheduledTime) || now < scheduledTime + 60 * 60 * 1000) continue;
+
+    const hasConfirmed = db.settlementConfirmations.some(
+      (confirmation) => confirmation.meetingId === meeting.id && confirmation.userId === userId
+    );
+    if (hasConfirmed) continue;
+
+    const alreadyExists = db.notifications.some(
+      (notification) =>
+        notification.type === "settlement_reminder" &&
+        notification.meetingId === meeting.id &&
+        notification.userId === userId
+    );
+    if (alreadyExists) continue;
+
+    const room = db.rooms.find((item) => item.id === meeting.roomId);
+    db.notifications.push({
+      id: randomUUID(),
+      userId,
+      meetingId: meeting.id,
+      roomId: meeting.roomId,
+      type: "settlement_reminder",
+      title: "정산을 기다리고 있어요",
+      message: `${room?.name ?? "방"} - ${meeting.title} 정산을 아직 하지 않았어요.`,
+      href: `/meetings/${meeting.id}/settlement`,
+      readAt: null,
+      createdAt: nowIso()
+    });
+  }
+
+  return db.notifications
+    .filter((notification) => notification.userId === userId && !notification.readAt)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
