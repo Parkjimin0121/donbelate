@@ -6045,8 +6045,8 @@ body {
 
 /* Unified app frame sizing */
 :root {
-  --app-frame-width: 430px;
-  --app-frame-min-height: 932px;
+  --app-frame-width: 496px;
+  --app-frame-min-height: 930px;
   --app-header-height: 64px;
 }
 
@@ -6083,7 +6083,7 @@ body {
   height: var(--app-header-height);
 }
 
-@media (max-width: 430px) {
+@media (max-width: 496px) {
   .phone-frame,
   .simple-page,
   .bid-page,
@@ -6094,3 +6094,4 @@ body {
     min-height: 100dvh;
   }
 }
+
