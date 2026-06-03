@@ -12,6 +12,35 @@ import {
 } from "@/lib/api";
 import { useAuthStore } from "@/stores/auth-store";
 
+const TEXT = {
+  appName: "DON\u2019T BE LATE",
+  login: "\uB85C\uADF8\uC778",
+  userSuffix: " \uB2D8",
+  newRoom: "\uC0C8\uB85C\uC6B4 \uBC29 \uB9CC\uB4E4\uAE30",
+  joinRoom: "\uAE30\uC874 \uBC29 \uCC38\uAC00\uD558\uAE30",
+  rooms: "\uCC38\uAC00\uD55C \uBC29",
+  roomFallback: "\uBC29 \uC815\uBCF4",
+  memberCount: "\uCC38\uAC00 \uC778\uC6D0",
+  memberUnit: "\uBA85",
+  upcoming: "\uB2E4\uAC00\uC624\uB294 \uC57D\uC18D",
+  meetingFallback: "\uC57D\uC18D",
+  placeFallback: "\uC57D\uC18D \uC7A5\uC18C",
+  timeFallback: "\uC57D\uC18D \uC2DC\uAC04",
+  friend: "\uCE5C\uAD6C",
+  noAppleTitle: "\uC624\uB298\uC740 \uC0AC\uACFC\uD560 \uC0AC\uB78C\uC774 \uC5C6\uC5B4\uC694",
+  noAppleSub: "\uBAA8\uB450 \uC57D\uC18D\uC744 \uC798 \uC9C0\uCF30\uC5B4\uC694.",
+  beforeSub: "\uB2A6\uC740 \uB9C8\uC74C\uC744 \uD3EC\uC778\uD2B8\uB85C \uC815\uC0B0\uD588\uC5B4\uC694.",
+  opening: "\uC0AC\uACFC \uC5EC\uB294 \uC911",
+  openLabel: "\uB20C\uB7EC\uC11C \uC0AC\uACFC\uB0B4\uC6A9 \uD655\uC778\uD558\uAE30",
+  receiveLabel: "\uB20C\uB7EC\uC11C \uC9C0\uAC01\uBE44 \uBC1B\uAE30",
+  noLateFee: "\uC815\uC0B0\uD560 \uC9C0\uAC01\uBE44\uAC00 \uC5C6\uC5B4\uC694",
+  error: "\uC815\uC0B0 \uB0B4\uC6A9\uC744 \uBD88\uB7EC\uC624\uC9C0 \uBABB\uD588\uC5B4\uC694.",
+  received: "\uBC1B\uC744 \uC9C0\uAC01\uBE44",
+  paid: "\uB0B4\uC57C \uD560 \uC9C0\uAC01\uBE44",
+  total: "\uCD1D \uC815\uC0B0\uAE08",
+  won: "\uC6D0"
+};
+
 export default function MeetingSettlementPage() {
   const router = useRouter();
   const params = useParams<{ meetingId: string }>();
@@ -35,12 +64,28 @@ export default function MeetingSettlementPage() {
   });
 
   const meeting = meetingQuery.data;
-  const arrivals = arrivalQuery.data ?? [];
+  const participantIds = new Set(meeting?.participantUserIds ?? []);
+  const hasParticipantFilter = participantIds.size > 0;
+  const arrivals = (arrivalQuery.data ?? []).filter(
+    (arrival) => !hasParticipantFilter || participantIds.has(arrival.userId)
+  );
   const lateSender = useMemo(() => pickLateSender(arrivals, meeting?.scheduledAt), [arrivals, meeting?.scheduledAt]);
-  const senderName = lateSender?.user?.name ?? "친구";
+  const senderName = lateSender?.user?.name ?? TEXT.friend;
   const hasLateFee = Boolean(lateSender);
+  const myDistribution = settlement?.distributions.find((item) => item.userId === user?.id);
+  const displayAmount = settlement ? amountForDisplay(settlement, myDistribution) : 0;
+  const displayCaption = myDistribution?.reward
+    ? TEXT.received
+    : myDistribution?.lateFee
+      ? TEXT.paid
+      : TEXT.total;
 
   async function handleOpenApology() {
+    if (settlement) {
+      router.push("/mypage");
+      return;
+    }
+
     if (!token) {
       router.push("/login");
       return;
@@ -52,18 +97,18 @@ export default function MeetingSettlementPage() {
       const result = await settleMeeting(meetingId, token);
       setSettlement(result);
     } catch (settleError) {
-      setError(settleError instanceof Error ? settleError.message : "정산 내용을 불러오지 못했어요.");
+      setError(settleError instanceof Error ? settleError.message : TEXT.error);
     } finally {
       setIsSettling(false);
     }
   }
 
   return (
-    <main className="phone-frame settlement-page">
+    <main className="phone-frame settlement-page settlement-apple-page">
       <header className="top-bar settlement-top-bar">
-        <h1>DON&apos;T BE LATE</h1>
+        <h1>{TEXT.appName}</h1>
         <button className="login-button bare-button" type="button" onClick={() => router.push(user ? "/mypage" : "/login")}>
-          {user ? `${user.name} 님` : "로그인"}
+          {user ? user.name + TEXT.userSuffix : TEXT.login}
         </button>
       </header>
 
@@ -71,86 +116,69 @@ export default function MeetingSettlementPage() {
         <div className="quick-actions settlement-ghost-actions">
           <div className="action-card">
             <span className="plus-box-icon" />
-            <span>새로운 방 만들기</span>
+            <span>{TEXT.newRoom}</span>
           </div>
           <div className="action-card">
             <span className="search-icon" />
-            <span>기존 방 참가하기</span>
+            <span>{TEXT.joinRoom}</span>
           </div>
         </div>
 
         <div className="content-panel settlement-ghost-panel">
-          <h2>참가한 방</h2>
+          <h2>{TEXT.rooms}</h2>
           <div className="dark-card settlement-ghost-card">
             <div className="dark-card-text">
-              <strong>{meeting?.room?.name ?? "방 정보"}</strong>
-              <span>참가 인원 {arrivals.length || 0}명</span>
+              <strong>{meeting?.room?.name ?? TEXT.roomFallback}</strong>
+              <span>{TEXT.memberCount} {arrivals.length || 0}{TEXT.memberUnit}</span>
             </div>
             <span className="trash-icon" />
           </div>
         </div>
 
         <div className="content-panel settlement-ghost-panel">
-          <h2>다가오는 약속</h2>
+          <h2>{TEXT.upcoming}</h2>
           <div className="upcoming-meeting-card">
             <div className="upcoming-meeting-link">
               <div className="upcoming-meeting-copy">
-                <strong>{meeting?.title ?? "약속"}</strong>
-                <span>{meeting?.locationName ?? "약속 장소"}</span>
-                <span>{meeting ? formatMeetingDateTime(meeting.scheduledAt) : "약속 시간"}</span>
+                <strong>{meeting?.title ?? TEXT.meetingFallback}</strong>
+                <span>{meeting?.locationName ?? TEXT.placeFallback}</span>
+                <span>{meeting ? formatMeetingDateTime(meeting.scheduledAt) : TEXT.timeFallback}</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="settlement-apology-card" aria-live="polite">
-        <p className="settlement-eyebrow">{hasLateFee ? `${senderName}님에게서 사과가 도착했어요` : "오늘은 사과할 사람이 없어요"}</p>
-        <p className="settlement-subcopy">
-          {hasLateFee ? "늦은 마음을 포인트로 정산했어요." : "모두 약속을 잘 지켰어요."}
+      <section className="settlement-apology-card settlement-apple-stage" aria-live="polite">
+        <p className="settlement-eyebrow">
+          {hasLateFee ? senderName + "\uB2D8\uC5D0\uAC8C\uC11C \uC0AC\uACFC\uAC00 \uB3C4\uCC29\uD588\uC5B4\uC694" : TEXT.noAppleTitle}
         </p>
+        <p className="settlement-subcopy">{hasLateFee ? TEXT.beforeSub : TEXT.noAppleSub}</p>
 
-        <button className="apple-button" type="button" onClick={handleOpenApology} disabled={isSettling || !hasLateFee}>
-          <span className="apple-illustration" aria-hidden="true">
+        <button
+          className={settlement ? "apple-button apple-button-open" : "apple-button"}
+          type="button"
+          onClick={handleOpenApology}
+          disabled={isSettling || !hasLateFee}
+        >
+          <span className="apple-illustration apple-illustration-large" aria-hidden="true">
             <span className="apple-leaf" />
             <span className="apple-stem" />
-            <span className="apple-body" />
+            {settlement ? (
+              <span className="apple-split-body">
+                <span className="apple-amount-text">{displayAmount.toLocaleString()}{TEXT.won}</span>
+              </span>
+            ) : (
+              <span className="apple-body" />
+            )}
           </span>
           <span className="apple-button-label">
-            {isSettling ? "사과 여는 중" : hasLateFee ? "눌러서 사과내용 확인하기" : "정산할 지각비가 없어요"}
+            {isSettling ? TEXT.opening : settlement ? TEXT.receiveLabel : hasLateFee ? TEXT.openLabel : TEXT.noLateFee}
           </span>
         </button>
 
+        {settlement ? <p className="settlement-amount-caption">{displayCaption}</p> : null}
         {error ? <p className="settlement-error">{error}</p> : null}
-
-        {settlement ? (
-          <div className="settlement-result-panel">
-            <div className="settlement-result-summary">
-              <span>총 지각비</span>
-              <strong>{settlement.totalLateFee.toLocaleString()}P</strong>
-            </div>
-            <div className="settlement-result-summary">
-              <span>분당 지각비</span>
-              <strong>{settlement.finalLateFeePerMinute.toLocaleString()}P</strong>
-            </div>
-            <div className="settlement-distribution-list">
-              {settlement.distributions.map((item) => (
-                <article key={item.userId} className="settlement-distribution-row">
-                  <div>
-                    <strong>{displayArrivalName(arrivals, item.userId)}</strong>
-                    <span>{item.lateMinutes > 0 ? `${item.lateMinutes}분 지각` : `${item.waitingMinutes}분 기다림`}</span>
-                  </div>
-                  <b className={item.lateFee > 0 ? "settlement-negative" : "settlement-positive"}>
-                    {item.lateFee > 0 ? `-${item.lateFee.toLocaleString()}P` : `+${item.reward.toLocaleString()}P`}
-                  </b>
-                </article>
-              ))}
-            </div>
-            <button className="settlement-home-button" type="button" onClick={() => router.push("/")}>
-              홈으로 돌아가기
-            </button>
-          </div>
-        ) : null}
       </section>
     </main>
   );
@@ -169,13 +197,19 @@ function pickLateSender(arrivals: ArrivalStatus[], scheduledAt?: string) {
     .sort((a, b) => b.displayLateMinutes - a.displayLateMinutes)[0];
 }
 
-function displayArrivalName(arrivals: ArrivalStatus[], userId: string) {
-  return arrivals.find((arrival) => arrival.userId === userId)?.user?.name ?? "멤버";
+function amountForDisplay(
+  settlement: Settlement,
+  distribution: Settlement["distributions"][number] | undefined
+) {
+  if (!distribution) return settlement.totalLateFee;
+  if (distribution.reward > 0) return distribution.reward;
+  if (distribution.lateFee > 0) return distribution.lateFee;
+  return settlement.totalLateFee;
 }
 
 function formatMeetingDateTime(value: string) {
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "약속 시간";
+  if (Number.isNaN(date.getTime())) return TEXT.timeFallback;
   return new Intl.DateTimeFormat("ko-KR", {
     month: "long",
     day: "numeric",
