@@ -127,7 +127,13 @@ export default function LiveMeetingPage() {
   }, [locationQuery, meetingId, meetingQuery.data, tab, token, user]);
 
   const meeting = meetingQuery.data;
-  const participantIds = new Set(meeting?.participantUserIds ?? []);
+  const effectiveParticipantIds =
+    meeting?.capacity === 1 && user
+      ? [user.id]
+      : meeting?.participantUserIds && meeting.capacity && meeting.participantUserIds.length > meeting.capacity
+        ? meeting.participantUserIds.slice(0, meeting.capacity)
+        : meeting?.participantUserIds ?? [];
+  const participantIds = new Set(effectiveParticipantIds);
   const hasParticipantFilter = participantIds.size > 0;
   const arrivals = (arrivalQuery.data ?? []).filter(
     (arrival) => !hasParticipantFilter || participantIds.has(arrival.userId)
