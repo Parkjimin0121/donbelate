@@ -5794,3 +5794,34 @@ body {
   font-weight: 800;
   line-height: 1.35;
 }
+
+/* Settlement apple centered stage */
+.settlement-apple-page .settlement-apology-card {
+  min-height: calc(100vh - 64px);
+  justify-content: center;
+  padding: 0 18px;
+  text-align: center;
+}
+
+.settlement-apple-page .settlement-eyebrow,
+.settlement-apple-page .settlement-subcopy,
+.settlement-apple-page .apple-button,
+.settlement-apple-page .settlement-amount-caption,
+.settlement-apple-page .settlement-home-link,
+.settlement-apple-page .settlement-error {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.settlement-apple-page .apple-button {
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 520px) {
+  .settlement-apple-page .settlement-apology-card {
+    min-height: calc(100vh - 64px);
+    justify-content: center;
+    padding: 0 14px;
+  }
+}
