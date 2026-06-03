@@ -129,8 +129,9 @@ export default function RoomDetailPage() {
           {meetings.map((meeting) => {
             const inProgress = isMeetingInProgress(meeting, currentTime);
             const isBidding = meeting.status === "bidding";
-            const isSettling = isMeetingSettling(meeting, currentTime);
-            const status = isBidding ? "입찰중" : isSettling ? "정산중" : inProgress ? "진행중" : "예정됨";
+            const isSettling = isMeetingSettling(meeting);
+            const isSettled = meeting.status === "settled";
+            const status = isBidding ? "입찰중" : isSettling ? "정산중" : isSettled ? "완료됨" : inProgress ? "진행중" : "예정됨";
             return (
               <PromiseCard
                 key={meeting.id}
@@ -228,7 +229,7 @@ function isMeetingInProgress(meeting: Meeting, currentTime: number) {
   return scheduledTime <= currentTime;
 }
 
-function isMeetingSettling(meeting: Meeting, _currentTime: number) {
+function isMeetingSettling(meeting: Meeting) {
   return meeting.status === "settling";
 }
 

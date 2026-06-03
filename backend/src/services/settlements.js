@@ -46,9 +46,11 @@ export function settleMeeting(db, meeting, userId) {
   );
 
   if (participantUserIds.every((participantId) => confirmedUserIds.has(participantId))) {
-    removeMeetingAfterSettlement(db, meeting.id);
+    meeting.status = "settled";
+    meeting.settledAt = meeting.settledAt ?? nowIso();
   } else {
     meeting.status = "settling";
+    meeting.settledAt = null;
   }
 
   return settlement;
@@ -143,18 +145,6 @@ function createSettlement(db, meeting, participantUserIds) {
   db.settlements = db.settlements.filter((item) => item.meetingId !== meeting.id);
   db.settlements.push(settlement);
   return settlement;
-}
-
-function removeMeetingAfterSettlement(db, meetingId) {
-  db.meetings = db.meetings.filter((meeting) => meeting.id !== meetingId);
-  db.bids = db.bids.filter((bid) => bid.meetingId !== meetingId);
-  db.checkins = db.checkins.filter((checkin) => checkin.meetingId !== meetingId);
-  db.liveLocations = db.liveLocations.filter((location) => location.meetingId !== meetingId);
-  db.horseBets = db.horseBets.filter((bet) => bet.meetingId !== meetingId);
-  db.meetingComments = db.meetingComments.filter((comment) => comment.meetingId !== meetingId);
-  db.settlementConfirmations = (db.settlementConfirmations ?? []).filter(
-    (confirmation) => confirmation.meetingId !== meetingId
-  );
 }
 
 function getNormalizedParticipantUserIds(db, meeting) {

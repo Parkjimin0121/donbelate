@@ -9,6 +9,8 @@ import { httpError } from "../utils/errors.js";
 import { minutesLate, nowIso } from "../utils/time.js";
 import { requireFields } from "../utils/validation.js";
 
+const SETTLED_VISIBLE_MS = 10 * 60 * 1000;
+
 export async function handleMeetingRoutes({ req, res, db, url, segments }) {
   if (req.method === "POST" && url.pathname === "/meetings") {
     const session = findSessionFromRequest(req, db);
@@ -42,10 +44,12 @@ export async function handleMeetingRoutes({ req, res, db, url, segments }) {
   if (req.method === "GET" && segments[0] === "rooms" && segments[2] === "meetings") {
     const roomId = segments[1];
     const session = readBearerToken(req) ? findSessionFromRequest(req, db) : null;
+    const now = Date.now();
     const meetings = db.meetings.filter(
       (meeting) =>
         meeting.roomId === roomId &&
-        (!session || isMeetingParticipant(meeting, session.userId))
+        (!session || isMeetingParticipant(meeting, session.userId)) &&
+        !isExpiredSettledMeeting(meeting, now)
     ).map((meeting) => withMeetingResponse(db, meeting));
     sendJson(res, 200, meetings);
     return true;
@@ -456,4 +460,11 @@ function isMeetingParticipant(meeting, userId) {
     return participantIds.slice(0, Number(meeting.capacity)).includes(userId);
   }
   return participantIds.includes(userId);
+}
+
+function isExpiredSettledMeeting(meeting, now = Date.now()) {
+  if (meeting.status !== "settled") return false;
+  const settledAt = new Date(meeting.settledAt ?? meeting.updatedAt ?? meeting.createdAt ?? 0).getTime();
+  if (Number.isNaN(settledAt)) return false;
+  return now - settledAt >= SETTLED_VISIBLE_MS;
 }

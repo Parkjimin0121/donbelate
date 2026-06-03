@@ -54,7 +54,8 @@ export type Meeting = {
       average: number | null;
     }>;
   } | null;
-  status?: "bidding" | "scheduled" | "settled" | string;
+  status?: "bidding" | "scheduled" | "settling" | "settled" | string;
+  settledAt?: string | null;
   room?: Room | null;
 };
 
@@ -409,3 +410,4 @@ export function logout(token: string | null) {
     headers: authHeaders(token)
   });
 }
+

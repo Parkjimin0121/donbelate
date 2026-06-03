@@ -7,6 +7,8 @@ import { readJson, sendJson } from "../utils/http.js";
 import { requireFields } from "../utils/validation.js";
 import { nowIso } from "../utils/time.js";
 
+const SETTLED_VISIBLE_MS = 10 * 60 * 1000;
+
 export async function handleUserRoutes({ req, res, db, url, segments }) {
   if (req.method === "POST" && url.pathname === "/users") {
     const body = await readJson(req);
@@ -73,7 +75,8 @@ export async function handleUserRoutes({ req, res, db, url, segments }) {
         (meeting) =>
           myRoomIds.includes(meeting.roomId) &&
           isVisibleMeetingForUser(meeting, session.userId) &&
-          (deriveMeetingStatus(meeting, now) === "bidding" || deriveMeetingStatus(meeting, now) === "settling" || new Date(meeting.scheduledAt).getTime() >= now)
+          !isExpiredSettledMeeting(meeting, now) &&
+          (deriveMeetingStatus(meeting, now) === "bidding" || deriveMeetingStatus(meeting, now) === "settling" || deriveMeetingStatus(meeting, now) === "settled" || new Date(meeting.scheduledAt).getTime() >= now)
       )
       .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())
       .map((meeting) => ({
@@ -119,6 +122,12 @@ export async function handleUserRoutes({ req, res, db, url, segments }) {
   return false;
 }
 
+function isExpiredSettledMeeting(meeting, now = Date.now()) {
+  if (meeting.status !== "settled") return false;
+  const settledAt = new Date(meeting.settledAt ?? meeting.updatedAt ?? meeting.createdAt ?? 0).getTime();
+  if (Number.isNaN(settledAt)) return false;
+  return now - settledAt >= SETTLED_VISIBLE_MS;
+}
 function isVisibleMeetingForUser(meeting, userId) {
   const participantIds = Array.isArray(meeting.participantUserIds) ? meeting.participantUserIds : [];
   if (participantIds.length === 0) {
@@ -175,7 +184,7 @@ function ensureSettlementReminderNotifications(db, userId) {
       roomId: meeting.roomId,
       type: "settlement_reminder",
       title: "정산을 기다리고 있어요",
-      message: `${room?.name ?? "방"} - ${meeting.title} 정산을 아직 하지 않았어요.`,
+      message: `${room?.name ?? "방"} - ${meeting.title} 정산이 아직 끝나지 않았어요.`,
       href: `/meetings/${meeting.id}/settlement`,
       readAt: null,
       createdAt: nowIso()
@@ -186,3 +195,6 @@ function ensureSettlementReminderNotifications(db, userId) {
     .filter((notification) => notification.userId === userId && !notification.readAt)
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
+
+
+
