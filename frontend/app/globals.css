@@ -5849,3 +5849,124 @@ body {
     transform: translate(-50%, -50%) scale(1);
   }
 }
+
+/* Settlement detail panel */
+.settlement-detail-toggle {
+  margin: 14px auto 0;
+  border: 0;
+  background: transparent;
+  color: var(--app-blue);
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.settlement-detail-panel {
+  width: min(88vw, 360px);
+  margin: 14px auto 0;
+  padding: 16px;
+  border: 1px solid var(--app-line);
+  border-radius: var(--app-radius-md);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--app-shadow);
+  text-align: left;
+}
+
+.settlement-detail-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--app-soft-blue);
+}
+
+.settlement-detail-total span,
+.settlement-detail-row span {
+  color: var(--app-muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.settlement-detail-total strong {
+  color: var(--app-blue);
+  font-size: 22px;
+  font-weight: 950;
+}
+
+.settlement-detail-panel h2 {
+  margin: 16px 0 10px;
+  color: var(--app-ink);
+  font-size: 16px;
+  font-weight: 950;
+}
+
+.settlement-detail-list {
+  display: grid;
+  gap: 8px;
+}
+
+.settlement-detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--app-line);
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.settlement-detail-row div {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.settlement-detail-row strong {
+  overflow: hidden;
+  color: var(--app-ink);
+  font-size: 15px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settlement-detail-row b {
+  flex: 0 0 auto;
+  color: var(--app-red);
+  font-size: 16px;
+  font-weight: 950;
+}
+
+/* Home density tuning */
+.phone-frame.home-room-count-0 .meetings-panel,
+.phone-frame.home-room-count-1 .meetings-panel {
+  margin-top: 42px;
+}
+
+.phone-frame.home-room-count-2 .meetings-panel {
+  margin-top: 34px;
+}
+
+.phone-frame.home-room-count-3 .meetings-panel {
+  margin-top: 28px;
+}
+
+.phone-frame.home-meeting-count-0 .meetings-panel,
+.phone-frame.home-meeting-count-1 .meetings-panel {
+  padding-bottom: 28px;
+}
+
+.phone-frame.home-meeting-count-2 .meetings-panel,
+.phone-frame.home-meeting-count-3 .meetings-panel {
+  padding-bottom: 30px;
+}
+
+.phone-frame.home-meeting-count-2 .meetings-panel .list-stack,
+.phone-frame.home-meeting-count-3 .meetings-panel .list-stack,
+.phone-frame.home-room-count-2 .rooms-panel .list-stack,
+.phone-frame.home-room-count-3 .rooms-panel .list-stack {
+  gap: 14px;
+}

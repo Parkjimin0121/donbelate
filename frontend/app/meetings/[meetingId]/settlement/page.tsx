@@ -40,8 +40,10 @@ const TEXT = {
   total: "\uCD1D \uC815\uC0B0\uAE08",
   won: "\uC6D0",
   appleArrived: "\uC0AC\uACFC\uAC00 \uB3C4\uCC29\uD588\uC5B4\uC694",
-  home: "\uD648\uC73C\uB85C \uB3CC\uC544\uAC00\uAE30",
-  detailCaption: "\uC9C0\uAC01\uBE44 \uC0C1\uC138\uC815\uBCF4 \uD655\uC778"
+  detailCaption: "\uC9C0\uAC01\uBE44 \uC0C1\uC138\uC815\uBCF4 \uD655\uC778",
+  detailTotal: "\uCD1D \uC9C0\uAC01\uBE44",
+  detailMemberTitle: "\uBA64\uBC84\uBCC4 \uC9C0\uAC01\uBE44",
+  minuteUnit: "\uBD84"
 };
 
 export default function MeetingSettlementPage() {
@@ -54,6 +56,7 @@ export default function MeetingSettlementPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSettling, setIsSettling] = useState(false);
   const [showSettlementAmount, setShowSettlementAmount] = useState(false);
+  const [showSettlementDetails, setShowSettlementDetails] = useState(false);
 
   const meetingQuery = useQuery({
     queryKey: ["meetings", meetingId],
@@ -78,10 +81,14 @@ export default function MeetingSettlementPage() {
   const hasLateFee = Boolean(lateSender);
   const myDistribution = settlement?.distributions.find((item) => item.userId === user?.id);
   const displayAmount = settlement ? amountForDisplay(settlement, myDistribution) : 0;
+  const settlementDetails = settlement?.distributions.map((distribution) => ({
+    ...distribution,
+    name: arrivals.find((arrival) => arrival.userId === distribution.userId)?.user?.name ?? TEXT.friend
+  })) ?? [];
 
   async function handleOpenApology() {
     if (settlement) {
-      router.push("/");
+      setShowSettlementDetails(true);
       return;
     }
 
@@ -92,6 +99,7 @@ export default function MeetingSettlementPage() {
 
     setError(null);
     setShowSettlementAmount(false);
+    setShowSettlementDetails(false);
     setIsSettling(true);
     try {
       const result = await settleMeeting(meetingId, token);
@@ -171,10 +179,31 @@ export default function MeetingSettlementPage() {
           </span>
         </button>
 
-        {settlement ? <p className="settlement-amount-caption">{TEXT.detailCaption}</p> : null}
-        <button className="settlement-home-link" type="button" onClick={() => router.push("/")}>
-          {TEXT.home}
-        </button>
+        {settlement ? (
+          <button className="settlement-detail-toggle" type="button" onClick={() => setShowSettlementDetails((value) => !value)}>
+            {TEXT.detailCaption}
+          </button>
+        ) : null}
+        {settlement && showSettlementDetails ? (
+          <section className="settlement-detail-panel" aria-label={TEXT.detailCaption}>
+            <div className="settlement-detail-total">
+              <span>{TEXT.detailTotal}</span>
+              <strong>{settlement.totalLateFee.toLocaleString()}{TEXT.won}</strong>
+            </div>
+            <h2>{TEXT.detailMemberTitle}</h2>
+            <div className="settlement-detail-list">
+              {settlementDetails.map((item) => (
+                <div className="settlement-detail-row" key={item.userId}>
+                  <div>
+                    <strong>{item.name}</strong>
+                    <span>{item.lateMinutes}{TEXT.minuteUnit} {TEXT.paid}</span>
+                  </div>
+                  <b>{item.lateFee.toLocaleString()}{TEXT.won}</b>
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : null}
         {error ? <p className="settlement-error">{error}</p> : null}
       </section>
     </main>
