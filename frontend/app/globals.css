@@ -5406,3 +5406,11 @@ body {
     max-width: 94vw;
   }
 }
+
+
+/* Settlement open apple image alignment */
+.apple-button-open .apple-image-wrap .apple-amount-text {
+  top: 57%;
+  background: rgba(255, 246, 215, 0.72);
+  box-shadow: 0 8px 18px rgba(122, 42, 34, 0.08);
+}

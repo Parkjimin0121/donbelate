@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900">
+  <defs>
+    <linearGradient id="flesh" x1="8%" x2="92%" y1="18%" y2="86%">
+      <stop offset="0%" stop-color="#fff8d4"/>
+      <stop offset="42%" stop-color="#fff0b1"/>
+      <stop offset="100%" stop-color="#fff7cf"/>
+    </linearGradient>
+    <radialGradient id="fleshLight" cx="32%" cy="28%" r="55%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.62"/>
+      <stop offset="42%" stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="rim" x1="18%" x2="82%" y1="8%" y2="100%">
+      <stop offset="0%" stop-color="#ff5e56"/>
+      <stop offset="44%" stop-color="#f33432"/>
+      <stop offset="100%" stop-color="#c81e29"/>
+    </linearGradient>
+    <linearGradient id="stem" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#f6a65d"/>
+      <stop offset="48%" stop-color="#d67631"/>
+      <stop offset="100%" stop-color="#9d4722"/>
+    </linearGradient>
+    <linearGradient id="leaf" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#d9f7a4"/>
+      <stop offset="42%" stop-color="#83d25c"/>
+      <stop offset="100%" stop-color="#54a943"/>
+    </linearGradient>
+    <filter id="shadow" x="-18%" y="-20%" width="136%" height="150%">
+      <feDropShadow dx="0" dy="26" stdDeviation="24" flood-color="#151a24" flood-opacity="0.23"/>
+    </filter>
+    <filter id="softInset">
+      <feGaussianBlur stdDeviation="5"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#shadow)">
+    <path d="M452 250 C482 224 553 222 627 257 C726 304 776 401 759 532 C741 676 641 756 520 756 C478 756 456 742 448 730 C439 744 414 756 372 756 C248 756 151 674 132 532 C113 396 168 300 269 257 C345 224 416 224 452 250Z" fill="url(#rim)"/>
+    <path d="M452 282 C481 250 551 248 613 283 C694 329 734 416 718 526 C701 653 613 715 518 715 C481 715 461 701 449 680 C437 702 414 715 374 715 C276 715 189 653 172 526 C157 415 197 329 282 283 C345 248 417 250 452 282Z" fill="url(#flesh)"/>
+    <path d="M452 282 C481 250 551 248 613 283 C694 329 734 416 718 526 C701 653 613 715 518 715 C481 715 461 701 449 680 C437 702 414 715 374 715 C276 715 189 653 172 526 C157 415 197 329 282 283 C345 248 417 250 452 282Z" fill="url(#fleshLight)"/>
+    <path d="M449 277 C459 297 476 309 494 313 C482 329 469 337 449 337 C430 337 415 328 401 313 C420 309 438 297 449 277Z" fill="#f43a32" opacity="0.95"/>
+    <path d="M451 330 C460 412 460 575 451 676" fill="none" stroke="#e7c678" stroke-width="6" stroke-linecap="round" opacity="0.18"/>
+    <path d="M449 244 C458 204 461 159 461 116 C461 88 485 75 514 86 C493 159 495 217 492 274 C471 268 457 258 449 244Z" fill="url(#stem)"/>
+    <path d="M494 91 C505 90 512 95 514 103 C504 104 497 101 494 91Z" fill="#ffc07a" opacity="0.62"/>
+    <path d="M425 221 C361 234 292 198 257 122 C335 90 431 121 486 215 C462 214 443 216 425 221Z" fill="url(#leaf)"/>
+    <path d="M272 126 C341 132 405 158 466 211" fill="none" stroke="#f1ffd5" stroke-width="10" stroke-linecap="round" opacity="0.42"/>
+    <path d="M468 215 C484 218 494 231 500 250" fill="none" stroke="#5c9f3d" stroke-width="14" stroke-linecap="round" opacity="0.55"/>
+  </g>
+</svg>

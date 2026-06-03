@@ -162,7 +162,7 @@ export default function MeetingSettlementPage() {
           disabled={isSettling || !hasLateFee}
         >
           <span className="apple-image-wrap" aria-hidden="true">
-            <img className="settlement-apple-image" src="/settlement-apple.svg" alt="" />
+            <img className="settlement-apple-image" src={settlement ? "/settlement-apple-open.svg" : "/settlement-apple.svg"} alt="" />
             {settlement ? <span className="apple-amount-text">{displayAmount.toLocaleString()}{TEXT.won}</span> : null}
           </span>
           <span className="apple-button-label">
