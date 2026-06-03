@@ -161,16 +161,9 @@ export default function MeetingSettlementPage() {
           onClick={handleOpenApology}
           disabled={isSettling || !hasLateFee}
         >
-          <span className="apple-illustration apple-illustration-large" aria-hidden="true">
-            <span className="apple-leaf" />
-            <span className="apple-stem" />
-            {settlement ? (
-              <span className="apple-split-body">
-                <span className="apple-amount-text">{displayAmount.toLocaleString()}{TEXT.won}</span>
-              </span>
-            ) : (
-              <span className="apple-body" />
-            )}
+          <span className="apple-image-wrap" aria-hidden="true">
+            <img className="settlement-apple-image" src="/settlement-apple.svg" alt="" />
+            {settlement ? <span className="apple-amount-text">{displayAmount.toLocaleString()}{TEXT.won}</span> : null}
           </span>
           <span className="apple-button-label">
             {isSettling ? TEXT.opening : settlement ? TEXT.receiveLabel : hasLateFee ? TEXT.openLabel : TEXT.noLateFee}
