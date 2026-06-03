@@ -11,6 +11,20 @@ const SEGMENT_DEGREES = 90;
 const POINTER_OFFSET_DEGREES = 0;
 const SPIN_DURATION_MS = 3000;
 
+const TEXT = {
+  back: "\uB4A4\uB85C\uAC00\uAE30",
+  title: "\uB8F0\uB81B \uB3CC\uB9AC\uAE30",
+  wheel: "\uC9C0\uAC01\uBE44 \uB8F0\uB81B",
+  spinning: "\uB3CC\uC544\uAC00\uB294 \uC911",
+  spin: "\uC2A4\uD540",
+  resultTitle: "\uB8F0\uB81B \uACB0\uACFC",
+  error: "\uB8F0\uB81B\uC744 \uB3CC\uB9AC\uC9C0 \uBABB\uD588\uC5B4\uC694.",
+  roomFallback: "\uBC29",
+  feePrefix: "\uBD84\uB2F9 \uC9C0\uAC01\uBE44",
+  confirmed: "\uD655\uC815",
+  home: "\uD648\uC73C\uB85C \uB3CC\uC544\uAC00\uAE30"
+};
+
 export default function RoulettePage() {
   const router = useRouter();
   const params = useParams<{ meetingId: string }>();
@@ -31,19 +45,18 @@ export default function RoulettePage() {
   const meeting = resultMeeting ?? meetingQuery.data;
   const labels = useMemo(() => buildWheelLabels(meeting), [meeting]);
   const finalFee = meeting?.finalLateFeePerMinute ?? meeting?.bidResult?.finalLateFeePerMinute ?? labels[0];
+  const alreadyFinalized = !isSpinning && !hasSpun && Boolean(meeting?.finalLateFeePerMinute);
+  const showResult = hasSpun || alreadyFinalized;
 
   async function spinRoulette() {
-    if (!token || isSpinning) return;
+    if (!token || isSpinning || showResult) return;
 
     setError(null);
     setHasSpun(false);
     setIsSpinning(true);
 
     try {
-      const finalizedMeeting = meeting?.finalLateFeePerMinute
-        ? meeting
-        : await finalizeMeetingBid(meetingId, token);
-
+      const finalizedMeeting = meeting?.finalLateFeePerMinute ? meeting : await finalizeMeetingBid(meetingId, token);
       const nextLabels = buildWheelLabels(finalizedMeeting);
       const selectedIndex = getSelectedSegmentIndex(finalizedMeeting, nextLabels);
       const targetRotation = getTargetRotation(rotation, selectedIndex);
@@ -57,22 +70,17 @@ export default function RoulettePage() {
       }, SPIN_DURATION_MS);
     } catch (finalizeError) {
       setIsSpinning(false);
-      setError(finalizeError instanceof Error ? finalizeError.message : "룰렛을 돌리지 못했어요.");
+      setError(finalizeError instanceof Error ? finalizeError.message : TEXT.error);
     }
   }
 
   return (
     <main className="phone-frame simple-page roulette-page">
       <header className="page-header">
-        <button
-          className="back-button bare-button"
-          type="button"
-          aria-label="뒤로가기"
-          onClick={() => router.replace(`/bid/${meetingId}`)}
-        >
+        <button className="back-button bare-button" type="button" aria-label={TEXT.back} onClick={() => router.replace(`/bid/${meetingId}`)}>
           <span className="back-icon" aria-hidden="true" />
         </button>
-        <h1>룰렛 돌리기</h1>
+        <h1>{TEXT.title}</h1>
       </header>
 
       <section className="roulette-stage">
@@ -80,7 +88,7 @@ export default function RoulettePage() {
         <div
           className={isSpinning ? "roulette-wheel roulette-wheel-spinning" : "roulette-wheel"}
           style={{ transform: `rotate(${rotation}deg)` }}
-          aria-label="지각비 룰렛"
+          aria-label={TEXT.wheel}
         >
           {labels.map((label, index) => (
             <span key={`${label}-${index}`} className={`roulette-label roulette-label-${index + 1}`}>
@@ -90,29 +98,31 @@ export default function RoulettePage() {
         </div>
       </section>
 
-      <button className="roulette-spin-button" disabled={isSpinning} type="button" onClick={spinRoulette}>
-        {isSpinning ? "돌아가는 중" : hasSpun ? "다시 돌리기" : "스핀"}
-      </button>
+      {!showResult ? (
+        <button className="roulette-spin-button" disabled={isSpinning} type="button" onClick={spinRoulette}>
+          {isSpinning ? TEXT.spinning : TEXT.spin}
+        </button>
+      ) : null}
 
       {error ? (
         <section className="roulette-result-card">
-          <h2>룰렛 결과</h2>
+          <h2>{TEXT.resultTitle}</h2>
           <p>{error}</p>
         </section>
       ) : null}
 
-      {hasSpun ? (
+      {showResult ? (
         <section className="roulette-result-card">
-          <h2>{meeting ? `${meeting.room?.name ?? "방"} - ${meeting.title}` : "룰렛 결과"}</h2>
+          <h2>{meeting ? `${meeting.room?.name ?? TEXT.roomFallback} - ${meeting.title}` : TEXT.resultTitle}</h2>
           <p>
-            분당 지각비 <strong>{finalFee}P</strong> 확정
+            {TEXT.feePrefix} <strong>{finalFee}P</strong> {TEXT.confirmed}
           </p>
         </section>
       ) : null}
 
-      {hasSpun ? (
+      {showResult ? (
         <button className="roulette-home-button" type="button" onClick={() => router.push("/")}>
-          홈으로 돌아가기
+          {TEXT.home}
         </button>
       ) : null}
     </main>
