@@ -149,10 +149,12 @@ export default function LiveMeetingPage() {
   const comments = commentsQuery.data ?? [];
   const myArrival = arrivals.find((arrival) => arrival.userId === user?.id);
   const canCheckin = Boolean(meeting && currentTime >= new Date(meeting.scheduledAt).getTime() && !myArrival?.arrived);
+  const isMeetingStarted = Boolean(meeting && currentTime >= new Date(meeting.scheduledAt).getTime());
   const arrivedMembers = arrivals
     .filter((arrival) => arrival.arrived)
     .sort((a, b) => new Date(a.arrivedAt ?? "").getTime() - new Date(b.arrivedAt ?? "").getTime());
   const lateMembers = arrivals.filter((arrival) => !arrival.arrived);
+  const canSettle = Boolean(meeting && isMeetingStarted && arrivals.length > 0);
   const runners = lateMembers.length > 0 ? lateMembers : arrivals.slice(0, 2);
   const selectedRunner = runners.find((runner) => runner.userId === selectedRunnerId) ?? runners[0];
 
@@ -279,11 +281,16 @@ export default function LiveMeetingPage() {
         <InfoTab
           arrivedMembers={arrivedMembers}
           canCheckin={canCheckin}
+          canSettle={canSettle}
           checkinError={checkinError}
           currentTime={currentTime}
+          isMeetingStarted={isMeetingStarted}
           lateMembers={lateMembers}
           meeting={meeting}
           onCheckin={handleCheckin}
+          onSettle={() => {
+            if (meeting) router.push(`/meetings/${meeting.id}/settlement`);
+          }}
         />
       ) : (
         <MapTab
@@ -328,19 +335,25 @@ function SegmentedTabs({ active, onChange }: { active: LiveTab; onChange: (tab: 
 function InfoTab({
   arrivedMembers,
   canCheckin,
+  canSettle,
   checkinError,
   currentTime,
+  isMeetingStarted,
   lateMembers,
   meeting,
-  onCheckin
+  onCheckin,
+  onSettle
 }: {
   arrivedMembers: ArrivalStatus[];
   canCheckin: boolean;
+  canSettle: boolean;
   checkinError: string | null;
   currentTime: number;
+  isMeetingStarted: boolean;
   lateMembers: ArrivalStatus[];
   meeting?: Meeting;
   onCheckin: () => void;
+  onSettle: () => void;
 }) {
   const finalLateFee = meeting?.finalLateFeePerMinute ?? meeting?.bidResult?.finalLateFeePerMinute ?? 189;
 
@@ -375,6 +388,11 @@ function InfoTab({
       <button className="checkin-button" disabled={!canCheckin} type="button" onClick={onCheckin}>
         체크인 하기
       </button>
+      {isMeetingStarted ? (
+        <button className="settle-button" disabled={!canSettle} type="button" onClick={onSettle}>
+          {canSettle ? "정산하기" : "참여자 정보를 불러오는 중"}
+        </button>
+      ) : null}
       {checkinError ? <p className="live-error">{checkinError}</p> : null}
 
       <h2 className="arrival-heading">참여자 도착 정보</h2>
