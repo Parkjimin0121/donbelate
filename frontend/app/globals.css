@@ -6042,3 +6042,55 @@ body {
     transform: translateY(0) scale(1);
   }
 }
+
+/* Unified app frame sizing */
+:root {
+  --app-frame-width: 430px;
+  --app-frame-min-height: 932px;
+  --app-header-height: 64px;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+.phone-frame,
+.simple-page,
+.bid-page,
+.bid-detail-page,
+.room-detail-page,
+.settlement-page {
+  width: min(100vw, var(--app-frame-width));
+  min-height: max(100dvh, var(--app-frame-min-height));
+  margin: 0 auto;
+}
+
+.phone-frame {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.top-bar,
+.page-header,
+.live-header {
+  min-height: var(--app-header-height);
+  height: var(--app-header-height);
+}
+
+@media (max-width: 430px) {
+  .phone-frame,
+  .simple-page,
+  .bid-page,
+  .bid-detail-page,
+  .room-detail-page,
+  .settlement-page {
+    width: 100vw;
+    min-height: 100dvh;
+  }
+}
