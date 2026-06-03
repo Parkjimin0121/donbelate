@@ -6139,3 +6139,50 @@ body {
   font-size: 14px !important;
   font-weight: 850 !important;
 }
+
+/* Compact mypage height to match the rest of the app */
+.mypage-page {
+  padding-bottom: 86px;
+}
+
+.mypage-page .profile-summary-card {
+  min-height: 104px;
+  margin-top: 28px;
+  padding: 16px 20px;
+}
+
+.mypage-page .mypage-section {
+  margin-top: 16px;
+}
+
+.mypage-page .mypage-section > h2 {
+  margin-bottom: 8px;
+  font-size: 22px;
+}
+
+.mypage-page .no-show-summary-card {
+  min-height: 66px;
+  padding: 14px 20px;
+}
+
+.mypage-page .point-summary-card {
+  min-height: 58px;
+}
+
+.mypage-page .mypage-panel {
+  padding: 20px;
+}
+
+.mypage-page .point-history-list,
+.mypage-page .review-list {
+  gap: 8px;
+}
+
+.mypage-page .review-card {
+  min-height: 64px;
+  padding: 18px 20px;
+}
+
+.mypage-page .bottom-nav {
+  bottom: 16px;
+}
