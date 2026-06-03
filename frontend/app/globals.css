@@ -5572,3 +5572,68 @@ body {
     max-width: 99vw;
   }
 }
+
+
+/* Settlement apple dominant size */
+.settlement-apple-page .settlement-apology-card {
+  padding: 44px 8px 28px;
+}
+
+.settlement-apple-page .settlement-eyebrow {
+  font-size: 25px;
+  margin-bottom: 0;
+}
+
+.settlement-apple-page .settlement-subcopy {
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+.settlement-apple-page .apple-button {
+  width: 100%;
+  max-width: none;
+  margin-top: -2px;
+  gap: 2px;
+}
+
+.settlement-apple-page .apple-image-wrap,
+.settlement-apple-page .apple-button-open .apple-image-wrap {
+  width: min(112vw, 520px);
+  height: min(112vw, 520px);
+  max-width: none;
+  max-height: none;
+}
+
+.settlement-apple-page .settlement-apple-image {
+  transform: scale(1.08);
+}
+
+.settlement-apple-page .apple-button-open .settlement-apple-image {
+  transform: scale(1.12);
+}
+
+.settlement-apple-page .apple-button-label {
+  margin-top: -18px;
+  font-size: 21px;
+}
+
+.settlement-apple-page .apple-image-wrap .apple-amount-text {
+  font-size: clamp(40px, 10vw, 56px);
+}
+
+.settlement-home-link {
+  margin-top: 6px;
+}
+
+@media (max-width: 520px) {
+  .settlement-apple-page .settlement-apology-card {
+    padding-top: 48px;
+  }
+
+  .settlement-apple-page .apple-image-wrap,
+  .settlement-apple-page .apple-button-open .apple-image-wrap {
+    width: 455px;
+    height: 455px;
+    max-width: 116vw;
+  }
+}
