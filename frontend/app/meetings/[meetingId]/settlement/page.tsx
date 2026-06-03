@@ -38,7 +38,9 @@ const TEXT = {
   received: "\uBC1B\uC744 \uC9C0\uAC01\uBE44",
   paid: "\uB0B4\uC57C \uD560 \uC9C0\uAC01\uBE44",
   total: "\uCD1D \uC815\uC0B0\uAE08",
-  won: "\uC6D0"
+  won: "\uC6D0",
+  appleArrived: "\uC0AC\uACFC\uAC00 \uB3C4\uCC29\uD588\uC5B4\uC694",
+  home: "\uD648\uC73C\uB85C \uB3CC\uC544\uAC00\uAE30"
 };
 
 export default function MeetingSettlementPage() {
@@ -82,7 +84,7 @@ export default function MeetingSettlementPage() {
 
   async function handleOpenApology() {
     if (settlement) {
-      router.push("/mypage");
+      router.push("/");
       return;
     }
 
@@ -151,7 +153,7 @@ export default function MeetingSettlementPage() {
 
       <section className="settlement-apology-card settlement-apple-stage" aria-live="polite">
         <p className="settlement-eyebrow">
-          {hasLateFee ? senderName + "\uB2D8\uC5D0\uAC8C\uC11C \uC0AC\uACFC\uAC00 \uB3C4\uCC29\uD588\uC5B4\uC694" : TEXT.noAppleTitle}
+          {hasLateFee ? TEXT.appleArrived : TEXT.noAppleTitle}
         </p>
         <p className="settlement-subcopy">{hasLateFee ? TEXT.beforeSub : TEXT.noAppleSub}</p>
 
@@ -171,6 +173,9 @@ export default function MeetingSettlementPage() {
         </button>
 
         {settlement ? <p className="settlement-amount-caption">{displayCaption}</p> : null}
+        <button className="settlement-home-link" type="button" onClick={() => router.push("/")}>
+          {TEXT.home}
+        </button>
         {error ? <p className="settlement-error">{error}</p> : null}
       </section>
     </main>

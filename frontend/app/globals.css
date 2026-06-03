@@ -5483,3 +5483,92 @@ body {
     max-width: 84vw;
   }
 }
+
+
+/* Settlement apple larger readable overlay */
+.settlement-apple-page .settlement-backdrop {
+  opacity: 0.32;
+  filter: grayscale(0.12);
+}
+
+.settlement-apple-page .settlement-backdrop::after {
+  background: rgba(255, 255, 255, 0.34);
+}
+
+.settlement-apple-page .settlement-apology-card {
+  padding: 58px 18px 34px;
+}
+
+.settlement-apple-page .settlement-eyebrow {
+  color: var(--app-ink);
+  font-size: 27px;
+  font-weight: 950;
+  text-shadow: 0 10px 30px rgba(255, 255, 255, 0.72);
+}
+
+.settlement-apple-page .settlement-subcopy,
+.settlement-apple-page .settlement-amount-caption {
+  color: var(--app-muted);
+  text-shadow: 0 8px 22px rgba(255, 255, 255, 0.72);
+}
+
+.settlement-apple-page .apple-button {
+  width: min(98vw, 460px);
+  margin-top: 4px;
+  gap: 6px;
+}
+
+.settlement-apple-page .apple-image-wrap {
+  width: min(94vw, 420px);
+  height: min(94vw, 420px);
+  max-height: 430px;
+}
+
+.settlement-apple-page .apple-button-open .apple-image-wrap {
+  width: min(96vw, 430px);
+  height: min(96vw, 430px);
+  max-height: 440px;
+}
+
+.settlement-apple-page .apple-button-label {
+  margin-top: -8px;
+  color: var(--app-ink);
+  font-size: 20px;
+  text-shadow: 0 10px 28px rgba(255, 255, 255, 0.8);
+}
+
+.settlement-apple-page .apple-image-wrap .apple-amount-text {
+  font-size: clamp(34px, 8vw, 48px);
+}
+
+.settlement-home-link {
+  margin-top: 10px;
+  border: 0;
+  background: transparent;
+  color: var(--app-blue);
+  font-size: 15px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+@media (max-width: 520px) {
+  .settlement-apple-page .settlement-apology-card {
+    padding-top: 60px;
+  }
+
+  .settlement-apple-page .settlement-eyebrow {
+    font-size: 25px;
+  }
+
+  .settlement-apple-page .apple-image-wrap {
+    width: 390px;
+    height: 390px;
+    max-width: 98vw;
+  }
+
+  .settlement-apple-page .apple-button-open .apple-image-wrap {
+    width: 400px;
+    height: 400px;
+    max-width: 99vw;
+  }
+}
