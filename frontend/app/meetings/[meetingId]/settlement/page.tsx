@@ -88,7 +88,7 @@ export default function MeetingSettlementPage() {
 
   async function handleOpenApology() {
     if (settlement) {
-      setShowSettlementDetails(true);
+      router.push("/");
       return;
     }
 
