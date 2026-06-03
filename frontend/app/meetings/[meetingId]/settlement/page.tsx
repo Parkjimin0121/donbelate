@@ -38,7 +38,7 @@ const TEXT = {
   received: "\uBC1B\uC744 \uC9C0\uAC01\uBE44",
   paid: "\uB0B4\uC57C \uD560 \uC9C0\uAC01\uBE44",
   total: "\uCD1D \uC815\uC0B0\uAE08",
-  won: "\uC6D0",
+  won: "P",
   appleArrived: "\uC0AC\uACFC\uAC00 \uB3C4\uCC29\uD588\uC5B4\uC694",
   detailCaption: "\uC9C0\uAC01\uBE44 \uC0C1\uC138\uC815\uBCF4 \uD655\uC778",
   detailTotal: "\uCD1D \uC9C0\uAC01\uBE44",
