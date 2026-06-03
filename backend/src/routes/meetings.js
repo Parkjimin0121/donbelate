@@ -11,6 +11,7 @@ import { requireFields } from "../utils/validation.js";
 
 export async function handleMeetingRoutes({ req, res, db, url, segments }) {
   if (req.method === "POST" && url.pathname === "/meetings") {
+    const session = findSessionFromRequest(req, db);
     const body = await readJson(req);
     requireFields(body, ["roomId", "title", "scheduledAt", "locationName", "latitude", "longitude"]);
 
@@ -23,7 +24,8 @@ export async function handleMeetingRoutes({ req, res, db, url, segments }) {
       latitude: Number(body.latitude),
       longitude: Number(body.longitude),
       capacity: body.capacity ?? null,
-      participantUserIds: normalizeParticipantUserIds(db, body.roomId, body.participantUserIds),
+      participantUserIds: normalizeParticipantUserIds(db, body.roomId, body.participantUserIds, session.userId),
+      createdByUserId: session.userId,
       bidDeadline: body.bidDeadline ?? null,
       finalLateFeePerMinute: null,
       bidResult: null,
@@ -44,7 +46,7 @@ export async function handleMeetingRoutes({ req, res, db, url, segments }) {
       (meeting) =>
         meeting.roomId === roomId &&
         (!session || isMeetingParticipant(meeting, session.userId))
-    );
+    ).map((meeting) => withNormalizedParticipants(db, meeting));
     sendJson(res, 200, meetings);
     return true;
   }
@@ -52,7 +54,7 @@ export async function handleMeetingRoutes({ req, res, db, url, segments }) {
   if (req.method === "GET" && segments[0] === "meetings" && segments[1] && !segments[2]) {
     const meeting = findMeeting(db, segments[1]);
     sendJson(res, 200, {
-      ...meeting,
+      ...withNormalizedParticipants(db, meeting),
       room: db.rooms.find((room) => room.id === meeting.roomId) ?? null
     });
     return true;
@@ -371,12 +373,15 @@ function findMeeting(db, meetingId) {
   return meeting;
 }
 
-function normalizeParticipantUserIds(db, roomId, participantUserIds) {
+function normalizeParticipantUserIds(db, roomId, participantUserIds, fallbackUserId = null) {
   const roomMemberIds = new Set(
     db.roomMembers.filter((member) => member.roomId === roomId).map((member) => member.userId)
   );
 
-  if (!Array.isArray(participantUserIds)) return [...roomMemberIds];
+  if (!Array.isArray(participantUserIds)) {
+    if (fallbackUserId && roomMemberIds.has(fallbackUserId)) return [fallbackUserId];
+    throw httpError(400, "At least one valid meeting participant is required.");
+  }
 
   const selectedIds = participantUserIds
     .map((userId) => String(userId))
@@ -389,15 +394,55 @@ function normalizeParticipantUserIds(db, roomId, participantUserIds) {
   return selectedIds;
 }
 
+function withNormalizedParticipants(db, meeting) {
+  return {
+    ...meeting,
+    participantUserIds: getNormalizedParticipantUserIds(db, meeting)
+  };
+}
+
+function getNormalizedParticipantUserIds(db, meeting) {
+  const roomMemberIds = db.roomMembers
+    .filter((member) => member.roomId === meeting.roomId)
+    .map((member) => member.userId);
+  const roomMemberIdSet = new Set(roomMemberIds);
+
+  const selectedIds = Array.isArray(meeting.participantUserIds)
+    ? meeting.participantUserIds
+        .map((userId) => String(userId))
+        .filter((userId, index, ids) => roomMemberIdSet.has(userId) && ids.indexOf(userId) === index)
+    : [];
+
+  if (meeting.createdByUserId && roomMemberIdSet.has(meeting.createdByUserId)) {
+    if (selectedIds.length === 0) return [meeting.createdByUserId];
+    if (Number(meeting.capacity) === 1 && selectedIds.length > 1) return [meeting.createdByUserId];
+  }
+
+  if (Number(meeting.capacity) > 0 && selectedIds.length > Number(meeting.capacity)) {
+    return selectedIds.slice(0, Number(meeting.capacity));
+  }
+
+  if (selectedIds.length > 0) return selectedIds;
+  return roomMemberIds;
+}
+
 function getMeetingRoomMembers(db, meeting) {
   const members = db.roomMembers.filter((member) => member.roomId === meeting.roomId);
-  if (!Array.isArray(meeting.participantUserIds) || meeting.participantUserIds.length === 0) return members;
-
-  const participantIds = new Set(meeting.participantUserIds);
+  const participantIds = new Set(getNormalizedParticipantUserIds(db, meeting));
   return members.filter((member) => participantIds.has(member.userId));
 }
 
 function isMeetingParticipant(meeting, userId) {
-  if (!Array.isArray(meeting.participantUserIds) || meeting.participantUserIds.length === 0) return true;
-  return meeting.participantUserIds.includes(userId);
+  const participantIds = Array.isArray(meeting.participantUserIds) ? meeting.participantUserIds : [];
+  if (participantIds.length === 0) {
+    if (meeting.createdByUserId) return meeting.createdByUserId === userId;
+    return true;
+  }
+  if (meeting.createdByUserId && Number(meeting.capacity) === 1 && participantIds.length > 1) {
+    return meeting.createdByUserId === userId;
+  }
+  if (Number(meeting.capacity) > 0 && participantIds.length > Number(meeting.capacity)) {
+    return participantIds.slice(0, Number(meeting.capacity)).includes(userId);
+  }
+  return participantIds.includes(userId);
 }

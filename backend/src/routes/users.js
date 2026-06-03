@@ -111,6 +111,16 @@ export async function handleUserRoutes({ req, res, db, url, segments }) {
 }
 
 function isVisibleMeetingForUser(meeting, userId) {
-  if (!Array.isArray(meeting.participantUserIds) || meeting.participantUserIds.length === 0) return true;
-  return meeting.participantUserIds.includes(userId);
+  const participantIds = Array.isArray(meeting.participantUserIds) ? meeting.participantUserIds : [];
+  if (participantIds.length === 0) {
+    if (meeting.createdByUserId) return meeting.createdByUserId === userId;
+    return true;
+  }
+  if (meeting.createdByUserId && Number(meeting.capacity) === 1 && participantIds.length > 1) {
+    return meeting.createdByUserId === userId;
+  }
+  if (Number(meeting.capacity) > 0 && participantIds.length > Number(meeting.capacity)) {
+    return participantIds.slice(0, Number(meeting.capacity)).includes(userId);
+  }
+  return participantIds.includes(userId);
 }

@@ -14,10 +14,8 @@ export function settleMeeting(db, meeting) {
   }
 
   const roomMembers = db.roomMembers.filter((member) => member.roomId === meeting.roomId);
-  const participants =
-    Array.isArray(meeting.participantUserIds) && meeting.participantUserIds.length > 0
-      ? roomMembers.filter((member) => meeting.participantUserIds.includes(member.userId))
-      : roomMembers;
+  const participantIds = new Set(getNormalizedParticipantUserIds(db, meeting));
+  const participants = roomMembers.filter((member) => participantIds.has(member.userId));
   const checkins = db.checkins.filter((checkin) => checkin.meetingId === meeting.id);
   const checkinByUser = new Map(checkins.map((checkin) => [checkin.userId, checkin]));
 
@@ -104,4 +102,29 @@ export function settleMeeting(db, meeting) {
   db.settlements.push(settlement);
   meeting.status = "settled";
   return settlement;
+}
+
+function getNormalizedParticipantUserIds(db, meeting) {
+  const roomMemberIds = db.roomMembers
+    .filter((member) => member.roomId === meeting.roomId)
+    .map((member) => member.userId);
+  const roomMemberIdSet = new Set(roomMemberIds);
+
+  const selectedIds = Array.isArray(meeting.participantUserIds)
+    ? meeting.participantUserIds
+        .map((userId) => String(userId))
+        .filter((userId, index, ids) => roomMemberIdSet.has(userId) && ids.indexOf(userId) === index)
+    : [];
+
+  if (meeting.createdByUserId && roomMemberIdSet.has(meeting.createdByUserId)) {
+    if (selectedIds.length === 0) return [meeting.createdByUserId];
+    if (Number(meeting.capacity) === 1 && selectedIds.length > 1) return [meeting.createdByUserId];
+  }
+
+  if (Number(meeting.capacity) > 0 && selectedIds.length > Number(meeting.capacity)) {
+    return selectedIds.slice(0, Number(meeting.capacity));
+  }
+
+  if (selectedIds.length > 0) return selectedIds;
+  return roomMemberIds;
 }
