@@ -5825,3 +5825,27 @@ body {
     padding: 0 14px;
   }
 }
+
+/* Settlement apple label spacing and delayed amount polish */
+.settlement-apple-page .apple-button-label {
+  margin-top: 14px;
+}
+
+.settlement-apple-page .apple-button-open .apple-button-label {
+  margin-top: 16px;
+}
+
+.settlement-apple-page .apple-amount-text {
+  animation: appleAmountReveal 180ms ease-out both;
+}
+
+@keyframes appleAmountReveal {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -46%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}

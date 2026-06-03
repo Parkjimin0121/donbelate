@@ -40,7 +40,8 @@ const TEXT = {
   total: "\uCD1D \uC815\uC0B0\uAE08",
   won: "\uC6D0",
   appleArrived: "\uC0AC\uACFC\uAC00 \uB3C4\uCC29\uD588\uC5B4\uC694",
-  home: "\uD648\uC73C\uB85C \uB3CC\uC544\uAC00\uAE30"
+  home: "\uD648\uC73C\uB85C \uB3CC\uC544\uAC00\uAE30",
+  detailCaption: "\uC9C0\uAC01\uBE44 \uC0C1\uC138\uC815\uBCF4 \uD655\uC778"
 };
 
 export default function MeetingSettlementPage() {
@@ -52,6 +53,7 @@ export default function MeetingSettlementPage() {
   const [settlement, setSettlement] = useState<Settlement | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSettling, setIsSettling] = useState(false);
+  const [showSettlementAmount, setShowSettlementAmount] = useState(false);
 
   const meetingQuery = useQuery({
     queryKey: ["meetings", meetingId],
@@ -76,11 +78,6 @@ export default function MeetingSettlementPage() {
   const hasLateFee = Boolean(lateSender);
   const myDistribution = settlement?.distributions.find((item) => item.userId === user?.id);
   const displayAmount = settlement ? amountForDisplay(settlement, myDistribution) : 0;
-  const displayCaption = myDistribution?.reward
-    ? TEXT.received
-    : myDistribution?.lateFee
-      ? TEXT.paid
-      : TEXT.total;
 
   async function handleOpenApology() {
     if (settlement) {
@@ -94,10 +91,12 @@ export default function MeetingSettlementPage() {
     }
 
     setError(null);
+    setShowSettlementAmount(false);
     setIsSettling(true);
     try {
       const result = await settleMeeting(meetingId, token);
       setSettlement(result);
+      window.setTimeout(() => setShowSettlementAmount(true), 420);
     } catch (settleError) {
       setError(settleError instanceof Error ? settleError.message : TEXT.error);
     } finally {
@@ -165,14 +164,14 @@ export default function MeetingSettlementPage() {
         >
           <span className="apple-image-wrap" aria-hidden="true">
             <img className="settlement-apple-image" src={settlement ? "/settlement-apple-open-3d.png" : "/settlement-apple-3d.png"} alt="" />
-            {settlement ? <span className="apple-amount-text">{displayAmount.toLocaleString()}{TEXT.won}</span> : null}
+            {settlement && showSettlementAmount ? <span className="apple-amount-text">{displayAmount.toLocaleString()}{TEXT.won}</span> : null}
           </span>
           <span className="apple-button-label">
             {isSettling ? TEXT.opening : settlement ? TEXT.receiveLabel : hasLateFee ? TEXT.openLabel : TEXT.noLateFee}
           </span>
         </button>
 
-        {settlement ? <p className="settlement-amount-caption">{displayCaption}</p> : null}
+        {settlement ? <p className="settlement-amount-caption">{TEXT.detailCaption}</p> : null}
         <button className="settlement-home-link" type="button" onClick={() => router.push("/")}>
           {TEXT.home}
         </button>
@@ -217,4 +216,3 @@ function formatMeetingDateTime(value: string) {
     hour12: false
   }).format(date);
 }
-
