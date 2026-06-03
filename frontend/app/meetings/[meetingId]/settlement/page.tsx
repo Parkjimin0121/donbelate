@@ -43,7 +43,8 @@ const TEXT = {
   detailCaption: "\uC9C0\uAC01\uBE44 \uC0C1\uC138\uC815\uBCF4 \uD655\uC778",
   detailTotal: "\uCD1D \uC9C0\uAC01\uBE44",
   detailMemberTitle: "\uBA64\uBC84\uBCC4 \uC9C0\uAC01\uBE44",
-  minuteUnit: "\uBD84"
+  minuteUnit: "\uBD84",
+  close: "\uB2EB\uAE30"
 };
 
 export default function MeetingSettlementPage() {
@@ -113,7 +114,7 @@ export default function MeetingSettlementPage() {
   }
 
   return (
-    <main className="phone-frame settlement-page settlement-apple-page">
+    <main className={showSettlementDetails ? "phone-frame settlement-page settlement-apple-page settlement-detail-open" : "phone-frame settlement-page settlement-apple-page"}>
       <header className="top-bar settlement-top-bar">
         <h1>{TEXT.appName}</h1>
         <button className="login-button bare-button" type="button" onClick={() => router.push(user ? "/mypage" : "/login")}>
@@ -184,8 +185,15 @@ export default function MeetingSettlementPage() {
             {TEXT.detailCaption}
           </button>
         ) : null}
-        {settlement && showSettlementDetails ? (
-          <section className="settlement-detail-panel" aria-label={TEXT.detailCaption}>
+
+        {error ? <p className="settlement-error">{error}</p> : null}
+      </section>
+      {settlement && showSettlementDetails ? (
+        <section className="settlement-detail-overlay" aria-modal="true" role="dialog" aria-label={TEXT.detailCaption}>
+          <div className="settlement-detail-panel">
+            <button className="settlement-detail-close" type="button" aria-label={TEXT.close} onClick={() => setShowSettlementDetails(false)}>
+              X
+            </button>
             <div className="settlement-detail-total">
               <span>{TEXT.detailTotal}</span>
               <strong>{settlement.totalLateFee.toLocaleString()}{TEXT.won}</strong>
@@ -202,10 +210,9 @@ export default function MeetingSettlementPage() {
                 </div>
               ))}
             </div>
-          </section>
-        ) : null}
-        {error ? <p className="settlement-error">{error}</p> : null}
-      </section>
+          </div>
+        </section>
+      ) : null}
     </main>
   );
 }
